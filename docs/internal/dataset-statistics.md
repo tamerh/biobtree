@@ -395,11 +395,15 @@ files:
 ```bash
 cd src
 go run ./cmd/statsverify \
-  -index ../out_prod/main/index \
+  -index ../out_prod/main/index,../out_prod/gnomad/index,../out_prod/dbsnp/index,../out_prod/cadd/index,../out_prod/conservation/index,../out_prod/predictions/index \
   -state ../out_prod/dataset_state.json \
   -conf ../conf \
-  > ../out_prod/stats_verified_main.csv
+  > ../out_prod/stats_verified_all.csv
 ```
+
+Pass every federation's `index` directory in one run so `edges_in` includes
+cross-federation inbound edges. A single-directory run is fine for out-edges but
+gives partial inbound.
 
 Output columns: `dataset, multi_file, nodes_state, nodes_actual, nodes_delta,
 edges_out_state, edges_out_actual, edges_out_delta, index_edges_state,

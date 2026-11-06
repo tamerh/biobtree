@@ -67,7 +67,7 @@ type fileCounts struct {
 }
 
 func main() {
-	indexDir := flag.String("index", "out_prod/main/index", "federation index directory")
+	indexFlag := flag.String("index", "out_prod/main/index", "comma-separated federation index directories")
 	statePath := flag.String("state", "out_prod/dataset_state.json", "dataset_state.json")
 	confDir := flag.String("conf", "conf", "configuration directory")
 	datasetList := flag.String("datasets", "", "comma-separated dataset names (default: all in state)")
@@ -81,6 +81,13 @@ func main() {
 
 	idToName, err := loadDatasetIDs(*confDir)
 	check(err, "loading dataset config")
+
+	indexDirs := make([]string, 0, 4)
+	for _, d := range strings.Split(*indexFlag, ",") {
+		if d = strings.TrimSpace(d); d != "" {
+			indexDirs = append(indexDirs, d)
+		}
+	}
 
 	names := make([]string, 0, len(state.Datasets))
 	if *datasetList != "" {
@@ -104,7 +111,7 @@ func main() {
 		go func() {
 			defer wg.Done()
 			for name := range jobs {
-				results <- verifyDataset(*indexDir, name, idToName, state.Datasets[name])
+				results <- verifyDataset(indexDirs, name, idToName, state.Datasets[name])
 			}
 		}()
 	}
@@ -168,7 +175,7 @@ var (
 	inboundAccumulator = map[string]int64{}
 )
 
-func verifyDataset(indexDir, dataset string, idToName map[string]string, st buildInfo) result {
+func verifyDataset(indexDirs []string, dataset string, idToName map[string]string, st buildInfo) result {
 	r := result{
 		dataset:    dataset,
 		stateNodes: st.Properties,
@@ -193,8 +200,13 @@ func verifyDataset(indexDir, dataset string, idToName map[string]string, st buil
 		}
 	}
 
-	forwardFiles, _ := filepath.Glob(filepath.Join(indexDir, dataset+"_sorted*.index.gz"))
-	searchFiles, _ := filepath.Glob(filepath.Join(indexDir, "textsearch_"+dataset+"_sorted*.index.gz"))
+	var forwardFiles, searchFiles []string
+	for _, indexDir := range indexDirs {
+		f, _ := filepath.Glob(filepath.Join(indexDir, dataset+"_sorted*.index.gz"))
+		forwardFiles = append(forwardFiles, f...)
+		s, _ := filepath.Glob(filepath.Join(indexDir, "textsearch_"+dataset+"_sorted*.index.gz"))
+		searchFiles = append(searchFiles, s...)
+	}
 	if len(forwardFiles) == 0 {
 		return r
 	}

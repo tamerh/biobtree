@@ -721,6 +721,19 @@ message AlleleFrequency {
   string population = 3;                    // Population studied
 }
 
+// ClinvarHgvsTranscript is one HGVS annotation for one transcript of a variant.
+// ClinVar XML carries NucleotideExpression, ProteinExpression and
+// MolecularConsequence inside HGVS blocks; this structure keeps them together.
+message ClinvarHgvsTranscript {
+  string transcript = 1;          // NM_/NR_ accession with version
+  string hgvs_c = 2;              // coding/non-coding expression (c./n.)
+  string hgvs_p = 3;              // protein expression (p.) when ClinVar provides it
+  string consequence = 4;         // MolecularConsequence Type (e.g. missense variant)
+  string so_id = 5;               // SO identifier (e.g. SO:0001583)
+  bool mane_select = 6;
+  bool mane_plus_clinical = 7;
+}
+
 message ClinvarAttr {
   // Identifiers
   string variation_id =1;                   // Primary key (VariationID)
@@ -763,6 +776,24 @@ message ClinvarAttr {
   repeated FunctionalConsequence functional_consequences = 23;  // SO annotations
   repeated AlleleFrequency allele_frequencies = 24;     // Population frequencies
   string evidence_support = 25;             // Evidence level/support summary
+  repeated ClinvarHgvsTranscript hgvs_transcripts = 29; // per-transcript c./p./consequence
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// RefSeqExonAttr is one exon of a RefSeq transcript, built from the human
+// GRCh38 RefSeq GFF3. Entries are keyed NM_...:exonN and xref to refseq.
+message RefSeqExonAttr {
+  string transcript = 1;       // versioned transcript accession (NM_... .N)
+  string transcript_base = 2;  // unversioned accession (matches refseq key)
+  string exon_id = 3;          // GFF exon ID (exon-NM_...-N)
+  int32 exon_number = 4;       // 1-based rank
+  string chromosome = 5;       // NC_ accession
+  int64 start = 6;             // genomic start
+  int64 end = 7;               // genomic end
+  string strand = 8;           // + or -
+  bool coding = 9;             // overlaps a CDS feature
+  int64 cds_start = 10;        // CDS start for the transcript (0 if non-coding)
+  int64 cds_end = 11;          // CDS end for the transcript (0 if non-coding)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

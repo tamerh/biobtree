@@ -1291,6 +1291,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["refseq"] = attr
 		}
+	case "refseq_exon":
+		if attr := targetXref.GetRefseqExon(); attr != nil {
+			attr.Id = id
+			evalMap["refseq_exon"] = attr
+		}
 	case "gencc":
 		if attr := targetXref.GetGencc(); attr != nil {
 			attr.Id = id

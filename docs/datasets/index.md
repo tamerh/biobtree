@@ -188,6 +188,7 @@ Taxonomy, toxicogenomics, gene sets, and specialized datasets.
 | msigdb | MSigDB gene sets | [README](msigdb.md) |
 | goa | GOA human GO annotations: GO term entries with human gene sets (GO-native enrichment) | [README](goa.md) |
 | alphamissense_aa | AlphaMissense protein-centric view, keyed `uniprot:protein_variant` | [README](alphamissense.md#protein-centric-view-alphamissense_aa-id-829) |
+| refseq_exon | Human RefSeq exon coordinates per transcript (GRCh38 GFF) | [README](refseq_exon.md) |
 
 ---
 

@@ -249,6 +249,7 @@ DATASETS=(
     # NCBI (run last - depends on others for xrefs)
     entrez
     refseq
+    refseq_exon
 )
 
 # ----------------------------------------------------------------------------

@@ -820,6 +820,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go rs.update(d.selectedTaxids)
 			break
+		case "refseq_exon":
+			d.wg.Add(1)
+			rse := refseqExon{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go rse.update()
+			break
 		case "mesh":
 			d.wg.Add(1)
 			m := mesh{source: data, d: d, treeToDescriptor: make(map[string]string)}

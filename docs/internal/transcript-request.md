@@ -1,6 +1,6 @@
 # Internal: Sugi Variant transcript request
 
-Status: open (implementation planned) · Last updated: 2026-11-07 · Context: main `db_v55`, v2.20.3
+Status: Stage A + `refseq_exon` implemented, builds pending · Last updated: 2026-11-07 · Context: main `db_v55`, v2.20.4
 
 Request from Sugi Variant: transcript-explicit variant pages. Four asks, mapped to
 what exists and what needs building.
@@ -33,7 +33,7 @@ forms.
 
 Plan:
 
-- **Stage A (implement):** add a structured repeated field
+- **Stage A (implemented):** add a structured repeated field
   `hgvs_transcripts` to `ClinvarAttr`, one record per (variation, transcript):
   `transcript` (with version), `hgvs_c`, `hgvs_p`, `consequence`, `so_id`,
   `mane_select`, `mane_plus_clinical`.
@@ -82,13 +82,13 @@ for the build. No separate “current” flag is needed for the display case.
 | Request | Status |
 |---|---|
 | MANE Plus discoverable, distinguishable | done (lite fields + filter) |
-| per-transcript `hgvs_c`/`hgvs_p`/consequence/MANE role | Stage A planned; VEP future |
-| exon coordinates per transcript | `refseq_exon` planned |
+| per-transcript `hgvs_c`/`hgvs_p`/consequence/MANE role | Stage A implemented (ClinVar XML); VEP future |
+| exon coordinates per transcript | `refseq_exon` implemented (exons; CDS/NMD pending) |
 | versions + current identifiable | done (version field) |
 
 ## Build order
 
-1. `refseq_exon` parser/dataset + proto; ClinVar `hgvs_transcripts` parser/proto.
+1. ~~`refseq_exon` parser/dataset + proto; ClinVar `hgvs_transcripts` parser/proto.~~
 2. Rebuild `refseq_exon` (GFF) and `clinvar` (XML), then main generate.
 3. VEP/NMD remains a separate feature.
 

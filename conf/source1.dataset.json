@@ -2233,6 +2233,20 @@
     "bucketMethod": "alphabetic",
     "federation": "main"
   },
+  "refseq_exon": {
+    "id": "830",
+    "name": "RefSeq Exons",
+    "aliases": "RefSeq exon,transcript exon,exon coordinates",
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/\u00a3{id}",
+    "path": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.gff.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "transcript,exon_number,chromosome,start,end,strand",
+    "compact_fields": "exon_number,chromosome,start,end,strand",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphabetic",
+    "federation": "main"
+  },
   "alphamissense_aa": {
     "id": "829",
     "name": "AlphaMissense (protein)",

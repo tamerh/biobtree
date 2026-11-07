@@ -25,6 +25,17 @@ ClinVar is a freely accessible public archive of reports of the relationships am
 - **Review Status Tracking**: Captures assertion criteria and review status (stars)
 - **Phenotype Associations**: Links variants to disease phenotypes and HPO terms
 - **AlleleID Tracking**: Preserves NCBI's AlleleID for variant allele grouping
+- **Per-transcript HGVS**: `hgvs_transcripts` carries one record per
+  (variant, transcript) with `transcript`, `hgvs_c`, `hgvs_p`,
+  `consequence`, `so_id`, `mane_select`, `mane_plus_clinical`. ClinVar's XML
+  provides p. and MolecularConsequence; where the protein expression is in a
+  separate HGVS block it is paired via the transcript's RefSeq protein
+  accession. NMD-escape is not in ClinVar and remains a VEP/RefSeq-exon task.
+
+  ```
+  NM_000552.5:c.1868GCG[3] → NP_000543.3:p.Gly624dup
+  consequence=inframe_insertion, SO:0001821, MANE Select
+  ```
 
 ## Use Cases
 

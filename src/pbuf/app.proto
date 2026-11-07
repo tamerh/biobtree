@@ -230,6 +230,7 @@ message Xref {
     WikipathwaysAttr wikipathways=827;
     DbvarAttr dbvar=828;
     GnomadSvAttr gnomad_sv=829;
+    RefSeqExonAttr refseq_exon=830;
     SaprotAttr saprot=815;
 
   }

@@ -43,7 +43,8 @@ chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
 dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_annotation
-clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
+clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant  # hgvs_transcripts carries per-transcript hgvs_c/hgvs_p/consequence/MANE role
+refseq_exon: refseq  # per-transcript RefSeq exon coordinates (GRCh38); refseq >> refseq_exon returns ordered exons
 dbvar: clinvar, mondo, mim, orphanet, medgen, mesh, hpo, pubmed
 gnomad_sv: hgnc
 goa: hgnc  # GOA human GO annotations; entries are GO terms with human gene sets. Use for GO-native enrichment (collection GO / GO:BP / GO:MF / GO:CC)

@@ -278,13 +278,80 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 				}
 			}
 
-			// HGVS expressions
+			// HGVS expressions + per-transcript c./p./consequence
 			if hgvsList := allele.Childs["HGVSlist"]; hgvsList != nil && len(hgvsList) > 0 {
+				var records []*pbuf.ClinvarHgvsTranscript
+				proteinExprs := make(map[string]string)
 				for _, hgvs := range hgvsList[0].Childs["HGVS"] {
+					var nucAcc, nucExpr string
+					var maneSelect, manePlus bool
 					if nucleotide := hgvs.Childs["NucleotideExpression"]; nucleotide != nil && len(nucleotide) > 0 {
-						if expression := nucleotide[0].Childs["Expression"]; expression != nil && len(expression) > 0 {
-							attr.HgvsExpressions = append(attr.HgvsExpressions, expression[0].InnerText)
+						nucAcc = nucleotide[0].Attrs["sequenceAccessionVersion"]
+						if nucAcc == "" {
+							nucAcc = nucleotide[0].Attrs["sequenceAccession"]
 						}
+						maneSelect = strings.EqualFold(nucleotide[0].Attrs["MANESelect"], "true")
+						manePlus = strings.EqualFold(nucleotide[0].Attrs["MANEPlusClinical"], "true")
+						if expression := nucleotide[0].Childs["Expression"]; expression != nil && len(expression) > 0 {
+							nucExpr = expression[0].InnerText
+							attr.HgvsExpressions = append(attr.HgvsExpressions, nucExpr)
+						}
+					}
+					var protExpr string
+					if protein := hgvs.Childs["ProteinExpression"]; protein != nil && len(protein) > 0 {
+						if expression := protein[0].Childs["Expression"]; expression != nil && len(expression) > 0 {
+							protExpr = expression[0].InnerText
+						}
+						pAcc := protein[0].Attrs["sequenceAccessionVersion"]
+						if pAcc == "" {
+							pAcc = protein[0].Attrs["sequenceAccession"]
+						}
+						if pAcc != "" {
+							proteinExprs[stripRefSeqVersion(pAcc)] = protExpr
+						}
+					}
+					if !strings.HasPrefix(nucAcc, "NM_") && !strings.HasPrefix(nucAcc, "NR_") &&
+						!strings.HasPrefix(nucAcc, "XM_") && !strings.HasPrefix(nucAcc, "XR_") && !strings.HasPrefix(nucAcc, "LRG_") {
+						continue
+					}
+					rec := &pbuf.ClinvarHgvsTranscript{
+						Transcript:       nucAcc,
+						HgvsC:            nucExpr,
+						HgvsP:            protExpr,
+						ManeSelect:       maneSelect,
+						ManePlusClinical: manePlus,
+					}
+					if cons := hgvs.Childs["MolecularConsequence"]; cons != nil && len(cons) > 0 {
+						rec.SoId = cons[0].Attrs["ID"]
+						rec.Consequence = cons[0].Attrs["Type"]
+					}
+					records = append(records, rec)
+				}
+
+				// ClinVar sometimes emits the protein expression in a separate HGVS
+				// block (NM_002111.6 in one, NP_002102.4 in another). Pair those via
+				// the transcript's RefSeq protein accession.
+				var refseqID uint32
+				if idStr, ok := config.Dataconf["refseq"]["id"]; ok {
+					if v, err := strconv.Atoi(idStr); err == nil {
+						refseqID = uint32(v)
+					}
+				}
+				seen := make(map[string]bool)
+				for _, rec := range records {
+					if rec.HgvsP == "" && refseqID != 0 {
+						if full, err := c.d.lookupFullEntry(stripRefSeqVersion(rec.Transcript), refseqID); err == nil && full != nil {
+							if a := full.GetRefseq(); a != nil && a.ProteinAccession != "" {
+								if p, ok := proteinExprs[stripRefSeqVersion(a.ProteinAccession)]; ok {
+									rec.HgvsP = p
+								}
+							}
+						}
+					}
+					key := rec.Transcript + "|" + rec.HgvsC + "|" + rec.Consequence
+					if !seen[key] {
+						seen[key] = true
+						attr.HgvsTranscripts = append(attr.HgvsTranscripts, rec)
 					}
 				}
 			}

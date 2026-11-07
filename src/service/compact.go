@@ -183,6 +183,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetRefseq(); a != nil {
 		return extractRefseqField(a, field)
 	}
+	if a := xref.GetRefseqExon(); a != nil {
+		return extractRefSeqExonField(a, field)
+	}
 	if a := xref.GetChebi(); a != nil {
 		return extractChebiField(a, field)
 	}
@@ -1139,6 +1142,39 @@ func extractRefseqField(a *pbuf.RefSeqAttr, field string) string {
 		return fmt.Sprintf("%d", a.SeqLength)
 	case "protein_length":
 		return fmt.Sprintf("%d", a.ProteinLength)
+	default:
+		return ""
+	}
+}
+
+// extractRefSeqExonField extracts a field from RefSeqExonAttr
+func extractRefSeqExonField(a *pbuf.RefSeqExonAttr, field string) string {
+	switch field {
+	case "transcript":
+		return a.Transcript
+	case "transcript_base":
+		return a.TranscriptBase
+	case "exon_id":
+		return a.ExonId
+	case "exon_number":
+		return fmt.Sprintf("%d", a.ExonNumber)
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "strand":
+		return a.Strand
+	case "coding":
+		if a.Coding {
+			return "true"
+		}
+		return "false"
+	case "cds_start":
+		return fmt.Sprintf("%d", a.CdsStart)
+	case "cds_end":
+		return fmt.Sprintf("%d", a.CdsEnd)
 	default:
 		return ""
 	}

@@ -59,7 +59,71 @@ with older Ensembl releases.
 **Cost.** Proto + parser + a new per-assembly data source; not a small fix. Only
 worth it if release-specific cytoband answers are required by the benchmark.
 
-## 3. Closed / no action
+## 3. Benchmark feedback (2026-11-07)
+
+Four items from the preprint/benchmark agent. Status per item.
+
+### 3.1 GO-native enrichment and human GO annotations (open, largest gap)
+
+`biobtree_enrich` scores MSigDB collections only. Terms that have no `C5` set
+can never be returned (e.g. `GOBP_NEGATIVE_REGULATION_OF_ANION_TRANSMEMBRANE_TRANSPORT`,
+`PENILE_ERECTION`, `GUANYLATE_CYCLASE_ACTIVITY`).
+
+A GO-native mode would also need better human annotations: `GO:1903960` currently
+maps to a single **mouse** gene (`ENSMUSG00000037012`, Hk1). Work:
+
+- add a human GO annotation source (GOA/GOC) rather than relying on the
+  cross-species Ensembl GO links, and
+- add an enrichment collection that scores GO terms directly from those
+  annotations.
+
+This is a feature, not a quick fix.
+
+### 3.2 dbSNP merged/retired rs IDs (open, data gap)
+
+`rs397784008` is not found, but NCBI merged it into `rs59732348`, which exists.
+dbSNP publishes `RsMergeArch.bcp.gz`; ingest it as a redirect/alias index
+(old rs -> current rs) and rebuild the dbsnp federation (520 GB, so a
+deliberate rebuild).
+
+### 3.3 Entrez synonyms — not missing; ranking/ambiguity (investigated)
+
+The Entrez parser **already indexes** `Synonyms` (`entrez.go` fields[4], text
+search per synonym). The reported examples do appear:
+
+- `DS` -> `1725` DHPS at rank 4 (top is DHDDS, which also texts as DS)
+- `P113` -> STAT2 at rank 2
+- `TFA` -> F3 at rank 3
+- `Sph1` -> ANK1 first; SNCAIP is also a valid SPH1 alias (ambiguous gold)
+
+A real ranking bug was found and fixed (`cd157a6`): the exact-match bonus
+compared each row with **its own keyword** instead of the caller's query, so it
+never fired. The remaining cases are genuinely ambiguous alias targets
+(ANK1 vs SNCAIP for Sph1), not missing index coverage. If the benchmark needs a
+deterministic winner, that requires an official-symbol/alias-source preference,
+not more synonyms.
+
+### 3.4 VEGA clone names (closed, source gap)
+
+`RP11-173H9.2` and `CTD-2216L14.1` are absent from the VEGA release actually
+used:
+
+```bash
+curl -sL https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz -o vega68.gtf.gz
+zgrep -E "RP11-173H9\.2|CTD-2216L14\.1" vega68.gtf.gz   # no matches
+```
+
+The benchmark golds are from a different VEGA release. No BioBTree fix.
+
+### 3.5 Confirmed not gaps
+
+- `NPIPA6` vs `NPIPA9`: Ensembl returns NPIPA6 for `ENSG00000183889`; gold stale.
+- `ENSG10010137169.1` / `ENSG10010137820.1`: malformed IDs in the gold CSV.
+- `SGO1` vs `SGOL1`: BioBTree resolves both to SGO1 (HGNC:25088).
+- Gene–disease coverage: known DisGeNET boundary; CTD→gene is the pending lever.
+- miRDB `NR_` targets: absent from miRDB v6.0 source.
+
+## 4. Closed / no action
 
 - **Unknown filter functions fail silently** — not reproducible on v2.20.1.
   `id.contains("3190")` works; `id.foo(...)` returns a proper type-check error;

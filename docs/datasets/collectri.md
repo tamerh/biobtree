@@ -96,7 +96,7 @@ Use: Access original experimental evidence
 
 ## Future Work
 
-- Add Ensembl gene ID cross-references
+- ~~Add Ensembl gene ID cross-references~~ Done (99,954 ensembl edges)
 - Support species-specific filtering
 - Add TF family annotations
 - Include interaction confidence scores from individual sources

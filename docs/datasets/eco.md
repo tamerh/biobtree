@@ -123,7 +123,7 @@ Use: Meta-analysis of annotation quality across databases
 
 ## Future Work
 
-- Add text search support for evidence type names (currently not indexed)
+- ~~Add text search support for evidence type names~~ Done (textsearch index present)
 - Add comprehensive hierarchy navigation tests
 - Test GO evidence code mapping validation
 - Add tests for experimental vs computational evidence distinction

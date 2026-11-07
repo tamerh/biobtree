@@ -190,7 +190,7 @@ Use: Assess evidence quality and study heterogeneity
 
 - Resolve memory allocation issues for test build
 - Add MeSH term cross-references
-- Link to PubMed for published results
+- ~~Link to PubMed for published results~~ Done (1,084,970 pubmed edges)
 - Geographic search by proximity
 - Disease ontology mapping (integrate with MONDO, HPO)
 - Drug name standardization (link to ChEMBL)

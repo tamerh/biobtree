@@ -172,6 +172,10 @@ Note: the downloaded file header still carries the old `CC BY-NC-SA 4.0` string;
 DeepMind relicensed the AlphaMissense score tables to CC BY 4.0 in 2024 (see the
 License section). Confirm the current upstream terms before redistribution.
 
+Current `out_prod` build: **216,175,351 substitutions**, 216,175,351
+`→ uniprot` edges, 3.2 GB index, 17m38s update (2026-11-07). Index scan verified
+`nodes == edges_out`.
+
 ## Analysis joins
 
 - **Population frequency**: no data change needed. `gnomad_variant` uses the

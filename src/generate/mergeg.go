@@ -196,7 +196,9 @@ func (wp *workerPool) readFirstKey(fs *fileState, tmprun []rune, skipUntil strin
 		switch c {
 		case newliner:
 			fs.linesRead++
-			line[index] = string(tmprun[:tabIndex])
+			if index < len(line) {
+				line[index] = string(tmprun[:tabIndex])
+			}
 
 			// Skip keys <= skipUntil (for resume functionality)
 			if skipUntil != "" && line[0] <= skipUntil {
@@ -213,7 +215,9 @@ func (wp *workerPool) readFirstKey(fs *fileState, tmprun []rune, skipUntil strin
 			return
 
 		case tabr:
-			line[index] = string(tmprun[:tabIndex])
+			if index < len(line) {
+				line[index] = string(tmprun[:tabIndex])
+			}
 			tabIndex = 0
 			index++
 
@@ -277,7 +281,9 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 		switch c {
 		case newliner:
 			fs.linesRead++
-			line[index] = string(tmprun[:tabIndex])
+			if index < len(line) {
+				line[index] = string(tmprun[:tabIndex])
+			}
 
 			// If we've moved to a different key, buffer this line and return
 			if len(key) > 0 && line[0] != key {
@@ -320,7 +326,9 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 			line = [6]string{}
 
 		case tabr:
-			line[index] = string(tmprun[:tabIndex])
+			if index < len(line) {
+				line[index] = string(tmprun[:tabIndex])
+			}
 			tabIndex = 0
 			index++
 

@@ -187,6 +187,7 @@ Taxonomy, toxicogenomics, gene sets, and specialized datasets.
 | faers_reaction | FAERS per-(drug,reaction) detail, child of faers (openFDA) | [README](faers.md) |
 | msigdb | MSigDB gene sets | [README](msigdb.md) |
 | goa | GOA human GO annotations: GO term entries with human gene sets (GO-native enrichment) | [README](goa.md) |
+| alphamissense_aa | AlphaMissense protein-centric view, keyed `uniprot:protein_variant` | [README](alphamissense.md#protein-centric-view-alphamissense_aa-id-829) |
 
 ---
 

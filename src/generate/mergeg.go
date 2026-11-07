@@ -2542,6 +2542,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Alphamissense{attr}
+			case "alphamissense_aa":
+				attr := &pbuf.AlphaMissenseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Alphamissense{attr}
 			case "alphamissense_transcript":
 				attr := &pbuf.AlphaMissenseTranscriptAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -3234,6 +3239,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_GnomadVariant{attr}
 			case "alphamissense":
+				attr := &pbuf.AlphaMissenseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Alphamissense{attr}
+			case "alphamissense_aa":
 				attr := &pbuf.AlphaMissenseAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)

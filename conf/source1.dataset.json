@@ -2232,5 +2232,19 @@
     "test_entries_count": "2000",
     "bucketMethod": "alphabetic",
     "federation": "main"
+  },
+  "alphamissense_aa": {
+    "id": "829",
+    "name": "AlphaMissense (protein)",
+    "aliases": "AlphaMissense protein,AlphaMissense amino acid substitution,AM protein,AM missense",
+    "url": "https://alphamissense.hegelab.org/",
+    "path": "https://storage.googleapis.com/dm_alphamissense/AlphaMissense_aa_substitutions.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "uniprot_id,protein_variant,am_pathogenicity,am_class",
+    "compact_fields": "protein_variant,am_pathogenicity,am_class",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphabetic",
+    "federation": "main"
   }
 }

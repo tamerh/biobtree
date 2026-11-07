@@ -1144,6 +1144,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go am.update()
 			break
+		case "alphamissense_aa":
+			d.wg.Add(1)
+			ama := alphamissenseAA{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ama.update()
+			break
 		case "alphamissense_transcript":
 			d.wg.Add(1)
 			amt := alphamissenseTranscript{source: data, d: d}

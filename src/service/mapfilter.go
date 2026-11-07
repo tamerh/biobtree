@@ -1426,6 +1426,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["alphamissense"] = attr
 		}
+	case "alphamissense_aa":
+		if attr := targetXref.GetAlphamissense(); attr != nil {
+			attr.Id = id
+			evalMap["alphamissense_aa"] = attr
+		}
 	case "alphamissense_transcript":
 		if attr := targetXref.GetAlphamissenseTranscript(); attr != nil {
 			attr.Id = id

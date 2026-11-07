@@ -145,6 +145,7 @@ DATASETS=(
              # (--federation scopes generate to this fed only; build its dir on /data)
     gnomad_variant
     alphamissense
+    alphamissense_aa
     alphamissense_transcript
     conservation
     revel

@@ -151,13 +151,47 @@ Use: Focus analysis on variants predicted to be damaging
 - Human proteome only (GRCh38/hg38)
 - No predictions for other organisms
 
+## Protein-centric view (`alphamissense_aa`, ID 829)
+
+The `AlphaMissense_aa_substitutions.tsv.gz` file is now a separate dataset,
+keyed by `uniprot:protein_variant` (e.g. `P01116:G12D`), the same key shape as
+`esm1b` and `saprot`. Fields: `uniprot_id`, `protein_variant`,
+`am_pathogenicity`, `am_class`; xref to `uniprot`.
+
+Use it when you do **not** have genomic coordinates:
+
+```
+P01116:G12D >>alphamissense_aa>>uniprot
+P01116:G12D >>alphamissense_aa     # entry with score/class
+```
+
+This avoids the `chr:pos:ref:alt` key needed by the main `alphamissense`
+dataset and makes cross-model joins (ESM1b/SaProt/AlphaMissense) direct.
+
+Note: the downloaded file header still carries the old `CC BY-NC-SA 4.0` string;
+DeepMind relicensed the AlphaMissense score tables to CC BY 4.0 in 2024 (see the
+License section). Confirm the current upstream terms before redistribution.
+
+## Analysis joins
+
+- **Population frequency**: no data change needed. `gnomad_variant` uses the
+  same `chr:pos:ref:alt` key as `alphamissense`, so query both with the same key
+  (e.g. `biobtree_entry(i="1:69094:G:T", s="gnomad_variant")`) and correlate.
+- **Protein domains**: `alphamissense_aa` now stores `position` (from the
+  substitution, e.g. `G12D` → 12); combine it with
+  `uniprot >> interpro/pfam` domain ranges.
+- **ClinVar comparison**: needs a variant bridge (genomic key → dbSNP/ClinVar);
+  not implemented.
+- **VEP consequences**: needs a separate Ensembl VEP annotation source;
+  not implemented.
+
 ## Future Work
 
-- Add AlphaMissense_aa_substitutions.tsv.gz (protein-centric view)
+- ~~Add AlphaMissense_aa_substitutions.tsv.gz (protein-centric view)~~ Done (ID 829)
 - ClinVar pathogenicity comparison
 - VEP consequence enrichment
-- Population frequency correlation
-- Protein domain mapping
+- ~~Population frequency correlation~~ Direct key join; documented above
+- ~~Protein domain mapping~~ `position` + uniprot/interpro; documented above
 
 ## Maintenance
 

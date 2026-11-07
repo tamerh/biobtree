@@ -12,6 +12,7 @@ GenCC (Gene Curation Coalition) provides standardized gene-disease validity clas
 **Primary Entries**: UUID-based entries (e.g., GENCC_000106-HGNC_1100-OMIM_604370-HP_0000006-GENCC_100002)
 **Searchable Text Links**: Gene symbol, disease title, classification title
 **Attributes Stored**: UUID, gene curie/symbol, disease curie/title, classification, mode of inheritance, submitter info, PMIDs
+**Lite/compact fields**: gene_curie (HGNC id), gene_symbol, disease_title, classification_title, moi_title, submitter_title — cite `gene_curie` rather than reconstructing the HGNC id
 **Cross-References**: Links to HGNC (genes), MONDO/OMIM/Orphanet (diseases), HPO (inheritance mode), PubMed (citations)
 
 ### Special Features

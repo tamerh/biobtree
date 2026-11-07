@@ -45807,6 +45807,16 @@ func (j *CollecTriAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Confidence))
 		buf.WriteByte(',')
 	}
+	if len(j.TfHgnc) != 0 {
+		buf.WriteString(`"tf_hgnc":`)
+		fflib.WriteJsonString(buf, string(j.TfHgnc))
+		buf.WriteByte(',')
+	}
+	if len(j.TargetHgnc) != 0 {
+		buf.WriteString(`"target_hgnc":`)
+		fflib.WriteJsonString(buf, string(j.TargetHgnc))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -45831,6 +45841,10 @@ const (
 
 	ffjtCollecTriAttrConfidence
 
+	ffjtCollecTriAttrTfHgnc
+
+	ffjtCollecTriAttrTargetHgnc
+
 	ffjtCollecTriAttrId
 )
 
@@ -45843,6 +45857,10 @@ var ffjKeyCollecTriAttrSources = []byte("sources")
 var ffjKeyCollecTriAttrRegulation = []byte("regulation")
 
 var ffjKeyCollecTriAttrConfidence = []byte("confidence")
+
+var ffjKeyCollecTriAttrTfHgnc = []byte("tf_hgnc")
+
+var ffjKeyCollecTriAttrTargetHgnc = []byte("target_hgnc")
 
 var ffjKeyCollecTriAttrId = []byte("id")
 
@@ -45950,12 +45968,34 @@ mainparse:
 						currentKey = ffjtCollecTriAttrTargetGene
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCollecTriAttrTfHgnc, kn) {
+						currentKey = ffjtCollecTriAttrTfHgnc
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCollecTriAttrTargetHgnc, kn) {
+						currentKey = ffjtCollecTriAttrTargetHgnc
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyCollecTriAttrId, kn) {
 					currentKey = ffjtCollecTriAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyCollecTriAttrTargetHgnc, kn) {
+					currentKey = ffjtCollecTriAttrTargetHgnc
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyCollecTriAttrTfHgnc, kn) {
+					currentKey = ffjtCollecTriAttrTfHgnc
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -46021,6 +46061,12 @@ mainparse:
 
 				case ffjtCollecTriAttrConfidence:
 					goto handle_Confidence
+
+				case ffjtCollecTriAttrTfHgnc:
+					goto handle_TfHgnc
+
+				case ffjtCollecTriAttrTargetHgnc:
+					goto handle_TargetHgnc
 
 				case ffjtCollecTriAttrId:
 					goto handle_Id
@@ -46210,6 +46256,58 @@ handle_Confidence:
 			outBuf := fs.Output.Bytes()
 
 			j.Confidence = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TfHgnc:
+
+	/* handler: j.TfHgnc type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TfHgnc = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TargetHgnc:
+
+	/* handler: j.TargetHgnc type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TargetHgnc = string(string(outBuf))
 
 		}
 	}
@@ -50139,6 +50237,22 @@ func (j *CtdDiseaseAssociationAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) err
 		fflib.FormatBits2(buf, uint64(j.PubmedCount), 10, j.PubmedCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.InferenceHgncIds) != 0 {
+		buf.WriteString(`"inference_hgnc_ids":`)
+		if j.InferenceHgncIds != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.InferenceHgncIds {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -50171,6 +50285,8 @@ const (
 
 	ffjtCtdDiseaseAssociationAttrPubmedCount
 
+	ffjtCtdDiseaseAssociationAttrInferenceHgncIds
+
 	ffjtCtdDiseaseAssociationAttrId
 )
 
@@ -50191,6 +50307,8 @@ var ffjKeyCtdDiseaseAssociationAttrInferenceGeneSymbols = []byte("inference_gene
 var ffjKeyCtdDiseaseAssociationAttrInferenceScore = []byte("inference_score")
 
 var ffjKeyCtdDiseaseAssociationAttrPubmedCount = []byte("pubmed_count")
+
+var ffjKeyCtdDiseaseAssociationAttrInferenceHgncIds = []byte("inference_hgnc_ids")
 
 var ffjKeyCtdDiseaseAssociationAttrId = []byte("id")
 
@@ -50306,6 +50424,11 @@ mainparse:
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
+					} else if bytes.Equal(ffjKeyCtdDiseaseAssociationAttrInferenceHgncIds, kn) {
+						currentKey = ffjtCtdDiseaseAssociationAttrInferenceHgncIds
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
 					} else if bytes.Equal(ffjKeyCtdDiseaseAssociationAttrId, kn) {
 						currentKey = ffjtCtdDiseaseAssociationAttrId
 						state = fflib.FFParse_want_colon
@@ -50324,6 +50447,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyCtdDiseaseAssociationAttrId, kn) {
 					currentKey = ffjtCtdDiseaseAssociationAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyCtdDiseaseAssociationAttrInferenceHgncIds, kn) {
+					currentKey = ffjtCtdDiseaseAssociationAttrInferenceHgncIds
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -50425,6 +50554,9 @@ mainparse:
 
 				case ffjtCtdDiseaseAssociationAttrPubmedCount:
 					goto handle_PubmedCount
+
+				case ffjtCtdDiseaseAssociationAttrInferenceHgncIds:
+					goto handle_InferenceHgncIds
 
 				case ffjtCtdDiseaseAssociationAttrId:
 					goto handle_Id
@@ -50775,6 +50907,80 @@ handle_PubmedCount:
 
 			j.PubmedCount = int32(tval)
 
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InferenceHgncIds:
+
+	/* handler: j.InferenceHgncIds type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.InferenceHgncIds = nil
+		} else {
+
+			j.InferenceHgncIds = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJInferenceHgncIds string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJInferenceHgncIds type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJInferenceHgncIds = string(string(outBuf))
+
+					}
+				}
+
+				j.InferenceHgncIds = append(j.InferenceHgncIds, tmpJInferenceHgncIds)
+
+				wantVal = false
+			}
 		}
 	}
 

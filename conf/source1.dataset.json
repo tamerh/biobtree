@@ -980,7 +980,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "uuid,gene_curie,gene_symbol,disease_curie,disease_title,classification_curie,classification_title,moi_curie,moi_title,submitter_curie,submitter_title,submitted_as_date,submitted_as_public_report_url,[]submitted_as_pmids",
-    "compact_fields": "gene_symbol,disease_title,classification_title,moi_title,submitter_title",
+    "compact_fields": "gene_curie,gene_symbol,disease_title,classification_title,moi_title,submitter_title",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
@@ -1244,7 +1244,7 @@
     "url": "https://ctdbase.org/detail.go?type=chem&acc=\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "association_id,chemical_id,chemical_name,disease_name,disease_id,[]direct_evidence,[]inference_gene_symbols,inference_score,pubmed_count",
-    "compact_fields": "chemical_name,disease_name,direct_evidence,inference_gene_symbols,inference_score,pubmed_count",
+    "compact_fields": "chemical_name,disease_name,direct_evidence,inference_gene_symbols,inference_hgnc_ids,inference_score,pubmed_count",
     "bucketMethod": "mesh",
     "xrefSort": "ctd:interactionScore;mesh:interactionScore"
   },
@@ -1697,7 +1697,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "tf_gene,target_gene,[]sources,[]pmids,regulation,confidence",
-    "compact_fields": "tf_gene,target_gene,regulation,confidence",
+    "compact_fields": "tf_gene,tf_hgnc,target_gene,target_hgnc,regulation,confidence",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },

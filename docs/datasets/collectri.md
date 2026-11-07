@@ -11,7 +11,7 @@ CollecTRI is a comprehensive collection of transcription factor (TF) - target ge
 ### Storage Model
 **Primary Entries**: TF:TG format (e.g., "MYC:TERT") - unique identifier for each regulatory interaction
 **Searchable Text Links**: Both TF gene symbol and target gene symbol are indexed for text search
-**Attributes Stored**: tf_gene, target_gene, sources (evidence databases), pmids, regulation (Activation/Repression/Unknown), confidence (High/Low)
+**Attributes Stored**: tf_gene, target_gene, sources (evidence databases), pmids, regulation (Activation/Repression/Unknown), confidence (High/Low), tf_hgnc, target_hgnc (canonical HGNC ids resolved from the symbols; empty for non-gene entities such as the AP1 complex)
 **Cross-References**: Links to HGNC via gene symbols for both TF and target genes
 
 ### Special Features

@@ -241,23 +241,23 @@ type diseaseAssociationAggregated struct {
 // the strongest genes by inference score instead of an arbitrary subset.
 const ctdInferenceGeneCap = 10
 
-// ctdGeneResolver maps an inference gene symbol to its official HGNC id, with
+// hgncSymbolResolver maps a gene symbol to its official HGNC id, with
 // a cache because the same symbols repeat across millions of associations.
-type ctdGeneResolver struct {
+type hgncSymbolResolver struct {
 	d      *DataUpdate
 	hgncID uint32
 	cache  map[string]string // upper symbol -> hgnc id ("" if unresolved)
 }
 
-func newCtdGeneResolver(d *DataUpdate) *ctdGeneResolver {
-	r := &ctdGeneResolver{d: d, cache: make(map[string]string)}
+func newHgncSymbolResolver(d *DataUpdate) *hgncSymbolResolver {
+	r := &hgncSymbolResolver{d: d, cache: make(map[string]string)}
 	if idStr, ok := config.Dataconf["hgnc"]["id"]; ok {
 		fmt.Sscanf(idStr, "%d", &r.hgncID)
 	}
 	return r
 }
 
-func (r *ctdGeneResolver) resolve(symbol string) (string, bool) {
+func (r *hgncSymbolResolver) resolve(symbol string) (string, bool) {
 	symbol = strings.TrimSpace(symbol)
 	if symbol == "" || r.d.lookupService == nil || r.hgncID == 0 {
 		return "", false
@@ -631,7 +631,7 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 	log.Printf("CTD: Aggregated %d rows into %d unique disease associations", rowCount, len(aggregated))
 
 	// Second pass: create entries and xrefs from aggregated data
-	geneResolver := newCtdGeneResolver(c.d)
+	geneResolver := newHgncSymbolResolver(c.d)
 	var savedCount int
 	var geneEdges int64
 	for associationID, agg := range aggregated {
@@ -660,8 +660,14 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 			ranked = ranked[:ctdInferenceGeneCap]
 		}
 		inferenceGenes := make([]string, len(ranked))
+		// Canonical ids aligned with inference_gene_symbols: every symbol shown
+		// to the model can be traced to HGNC without recalling it from memory.
+		inferenceHgncIDs := make([]string, len(ranked))
 		for i, g := range ranked {
 			inferenceGenes[i] = g.symbol
+			if hgncID, ok := geneResolver.resolve(g.symbol); ok {
+				inferenceHgncIDs[i] = hgncID
+			}
 		}
 		var omimIDs []string
 		for omim := range agg.omimIDs {
@@ -681,6 +687,7 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 			DiseaseId:            agg.diseaseID,
 			DirectEvidence:       directEvidence,
 			InferenceGeneSymbols: inferenceGenes,
+			InferenceHgncIds:     inferenceHgncIDs,
 			InferenceScore:       agg.maxInferenceScore,
 			PubmedCount:          int32(len(pubmedIDs)),
 		}
@@ -736,11 +743,13 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 		// links, NOT curated gene-disease associations. relationship="inferred"
 		// marks them and only the strongest inference genes are kept.
 		if _, exists := config.Dataconf["hgnc"]; exists {
-			for _, gene := range inferenceGenes {
-				if hgncID, ok := geneResolver.resolve(gene); ok {
-					c.d.addXrefWithRelationship(associationID, diseaseAssocSourceID, hgncID, "hgnc", false, "inferred")
-					geneEdges++
+			for i := range inferenceGenes {
+				hgncID := inferenceHgncIDs[i]
+				if hgncID == "" {
+					continue
 				}
+				c.d.addXrefWithRelationship(associationID, diseaseAssocSourceID, hgncID, "hgnc", false, "inferred")
+				geneEdges++
 			}
 		}
 

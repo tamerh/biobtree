@@ -64,7 +64,7 @@ mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cel
 doid: mondo, alliance_disease, doidparent, doidchild  # Disease Ontology (now a full ontology w/ hierarchy); reach MONDO + its disease graph via the mondo<->doid bridge
 alliance_disease: hgnc, mgi, rgd, zfin, sgd, wormbase, flybase, xenbase, doid, pubmed  # cross-species + human gene->disease (Alliance of Genome Resources); gene >> alliance_disease >> doid, or doid >> alliance_disease >> mgi/rgd/... for model-organism genes
 alliance_phenotype: mgi, rgd, wormbase, xenbase, mp, wbphenotype, xpo, pubmed  # model-organism gene -> OBSERVED knockout/mutant phenotypes (distinct from the upheno ontology-translation path). Reach from the model-organism gene directly: mgi/rgd/wormbase/xenbase >> alliance_phenotype >> mp
-gencc: mondo, hpo, hgnc, ensembl
+gencc: mondo, hpo, hgnc, ensembl  # outputs carry gene_curie (HGNC id) with gene_symbol; cite the id
 clingen_gene_validity: hgnc, entrez, ensembl, mondo  # ClinGen gene-disease validity tier (Definitive..Refuted) + MOI
 clingen_dosage: entrez, hgnc, ensembl, mondo, mim, pubmed  # ClinGen haploinsufficiency/triplosensitivity per gene
 clingen_variant: clinvar, hgnc, entrez, ensembl, mondo, pubmed  # ClinGen VCEP ACMG variant pathogenicity (clinvar bridges to dbsnp)
@@ -80,7 +80,7 @@ pharmgkb_pathway: hgnc, pharmgkb
 pharmgkb_var_annotation: hgnc, entrez, ensembl, dbsnp, pubmed  # per-publication variant-annotation evidence (finding sentence, PMID, significance, study stats) beneath pharmgkb_clinical; reach via gene or rsID
 ctd: mesh, ctd_gene_interaction, ctd_disease_association, pubchem
 ctd_gene_interaction: ctd, entrez, taxonomy, pubmed
-ctd_disease_association: ctd, mesh, mim, pubmed, hgnc  # hgnc = CTD-INFERRED chemical-disease-gene links (strongest 10 genes, relationship="inferred"); NOT curated gene-disease associations
+ctd_disease_association: ctd, mesh, mim, pubmed, hgnc  # hgnc = CTD-INFERRED chemical-disease-gene links (strongest 10 genes, relationship="inferred"); NOT curated gene-disease associations; inference_hgnc_ids aligns with inference_gene_symbols
 intact: uniprot, chebi, rnacentral
 string: uniprot, string_interaction
 string_interaction: string, uniprot
@@ -122,7 +122,7 @@ wikipathways: hgnc, entrez
 orphanet: hpo, uniprot, mondo, hgnc, clinvar, mim, mesh
 mim: clinvar, hpo, mondo, uniprot, ctd_disease_association, panelapp_gene
 hmdb: pubchem, hpo, chebi, uniprot
-collectri: hgnc  # transcription factor → target gene interactions
+collectri: hgnc  # transcription factor → target gene interactions; tf_hgnc/target_hgnc give canonical HGNC ids
 esm2_similarity: uniprot  # protein structural similarity
 diamond_similarity: uniprot  # protein sequence similarity
 cellphonedb: uniprot, ensembl, hgnc, pubmed  # ligand-receptor pairs for cell-cell communication
@@ -376,9 +376,12 @@ DEFAULTS: collection="C5:GO" (GO BP/MF/CC); limit=20.
 - If `truncated` is true the internal page limit was reached before all input
   pages were read; split the gene list and re-run.
 
-RETURNS: query summary + ranked terms {id, name, collection, overlap,
-set_size, fold, p, fdr}. `query.input_genes` echoes the inputs, `query.genes`
-are the resolved HGNC ids, and `not_found` lists inputs that did not map."""
+RETURNS: query summary + ranked terms {id, name, collection, go_id,
+exact_source, overlap, set_size, fold, p, fdr}. `go_id` is present whenever
+the set maps to a GO term (always for GO-native mode) and `exact_source` is the
+MSigDB source term; cite them instead of recalling IDs. `query.input_genes`
+echoes the inputs, `query.genes` are the resolved HGNC ids, and `not_found`
+lists inputs that did not map."""
 
 
 # =============================================================================

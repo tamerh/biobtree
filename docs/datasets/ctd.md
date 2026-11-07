@@ -136,6 +136,8 @@ Use: Focus on human health relevance
 - Direct evidence type
 - Inference score
 - `inference_gene_symbols`: strongest 10 inference genes
+- `inference_hgnc_ids`: canonical HGNC ids aligned element-for-element with
+  `inference_gene_symbols` (empty string where a symbol has no exact HGNC match)
 - `→ hgnc` xrefs for those genes, with `relationship="inferred"`
 - OMIM and PubMed references
 

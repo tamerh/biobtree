@@ -16,6 +16,30 @@ import (
 type clinvarXML struct {
 	source string
 	d      *DataUpdate
+	// proteinByTranscript caches transcript → RefSeq protein accession. Without
+	// it the parser does one LMDB lookup per variant-with-transcript (millions);
+	// transcripts repeat, so the unique set is ~100k.
+	proteinByTranscript map[string]string
+}
+
+// proteinAccessionFor resolves the RefSeq protein accession of a transcript,
+// returning "" when the transcript has none. Cached; a miss is cached too.
+func (c *clinvarXML) proteinAccessionFor(transcript string, refseqID uint32) string {
+	if c.proteinByTranscript == nil {
+		c.proteinByTranscript = make(map[string]string)
+	}
+	key := stripRefSeqVersion(transcript)
+	if v, ok := c.proteinByTranscript[key]; ok {
+		return v
+	}
+	acc := ""
+	if full, err := c.d.lookupFullEntry(key, refseqID); err == nil && full != nil {
+		if a := full.GetRefseq(); a != nil {
+			acc = a.ProteinAccession
+		}
+	}
+	c.proteinByTranscript[key] = acc
+	return acc
 }
 
 // selectPrimaryGene picks the gene a ClinVar variant is actually in, from a
@@ -340,11 +364,9 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 				seen := make(map[string]bool)
 				for _, rec := range records {
 					if rec.HgvsP == "" && refseqID != 0 {
-						if full, err := c.d.lookupFullEntry(stripRefSeqVersion(rec.Transcript), refseqID); err == nil && full != nil {
-							if a := full.GetRefseq(); a != nil && a.ProteinAccession != "" {
-								if p, ok := proteinExprs[stripRefSeqVersion(a.ProteinAccession)]; ok {
-									rec.HgvsP = p
-								}
+						if pAcc := c.proteinAccessionFor(rec.Transcript, refseqID); pAcc != "" {
+							if p, ok := proteinExprs[stripRefSeqVersion(pAcc)]; ok {
+								rec.HgvsP = p
 							}
 						}
 					}

@@ -39,14 +39,16 @@ type EnrichmentQuery struct {
 }
 
 type EnrichmentTerm struct {
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	Collection string  `json:"collection"`
-	Overlap    int     `json:"overlap"`
-	SetSize    int     `json:"set_size"`
-	Fold       float64 `json:"fold"`
-	P          float64 `json:"p"`
-	FDR        float64 `json:"fdr"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Collection  string  `json:"collection"`
+	GoID        string  `json:"go_id,omitempty"`        // canonical GO id when the set maps to one
+	ExactSource string  `json:"exact_source,omitempty"` // source term from the MSigDB attribute
+	Overlap     int     `json:"overlap"`
+	SetSize     int     `json:"set_size"`
+	Fold        float64 `json:"fold"`
+	P           float64 `json:"p"`
+	FDR         float64 `json:"fdr"`
 }
 
 type EnrichmentResult struct {
@@ -259,6 +261,11 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 		return result, nil
 	}
 
+	// Canonical IDs make every identifier in an answer traceable to the tool
+	// output instead of being recalled from memory: GO terms carry go_id,
+	// MSigDB sets keep their exact source.
+	s.attachEnrichTermIDs(terms, baseCollection)
+
 	m := collectionTotals[collection]
 	if m < len(terms) {
 		m = len(terms)
@@ -401,6 +408,50 @@ func normalizeEnrichCollection(collection string) (string, string) {
 		}
 	}
 	return collection, ""
+}
+
+// attachEnrichTermIDs adds the canonical GO id / exact source to each result.
+// GOA sets are natively GO terms; MSigDB sets are looked up once per set to
+// read MsigdbAttr.go_terms and exact_source.
+func (s *Service) attachEnrichTermIDs(terms []EnrichmentTerm, baseCollection string) {
+	if strings.HasPrefix(baseCollection, "GOA") {
+		for i := range terms {
+			terms[i].GoID = terms[i].ID
+		}
+		return
+	}
+
+	idStr, ok := config.Dataconf["msigdb"]["id"]
+	if !ok {
+		return
+	}
+	msigdbID, err := strconv.Atoi(idStr)
+	if err != nil {
+		return
+	}
+
+	type termIDs struct {
+		goID  string
+		exact string
+	}
+	cache := make(map[string]termIDs, len(terms))
+	for i := range terms {
+		v, ok := cache[terms[i].ID]
+		if !ok {
+			x, xerr := s.LookupByDataset(terms[i].ID, uint32(msigdbID))
+			if xerr == nil && x != nil {
+				if a := x.GetMsigdb(); a != nil {
+					if len(a.GoTerms) > 0 {
+						v.goID = a.GoTerms[0]
+					}
+					v.exact = a.ExactSource
+				}
+			}
+			cache[terms[i].ID] = v
+		}
+		terms[i].GoID = v.goID
+		terms[i].ExactSource = v.exact
+	}
 }
 
 // parseMsigdbTarget parses id|name|collection|description|size, honouring

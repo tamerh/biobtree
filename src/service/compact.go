@@ -1719,6 +1719,8 @@ func extractCtdDiseaseAssociationField(a *pbuf.CtdDiseaseAssociationAttr, field 
 		return strings.Join(a.DirectEvidence, ";")
 	case "inference_gene_symbols":
 		return strings.Join(a.InferenceGeneSymbols, ";")
+	case "inference_hgnc_ids":
+		return strings.Join(a.InferenceHgncIds, ";")
 	case "inference_score":
 		return fmt.Sprintf("%.2f", a.InferenceScore)
 	case "pubmed_count":
@@ -3333,6 +3335,10 @@ func extractCollectriField(a *pbuf.CollecTriAttr, field string) string {
 		return a.TfGene
 	case "target_gene":
 		return a.TargetGene
+	case "tf_hgnc":
+		return a.TfHgnc
+	case "target_hgnc":
+		return a.TargetHgnc
 	case "regulation":
 		return a.Regulation
 	case "confidence":

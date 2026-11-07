@@ -1860,6 +1860,7 @@ message CtdDiseaseAssociationAttr {
   repeated string inference_gene_symbols = 7;     // Genes linking chemical to disease - aggregated
   double inference_score = 8;                     // Max CTD inference score (for sorting/filtering)
   int32 pubmed_count = 9;                         // Number of PubMed references (actual IDs via xref to pubmed)
+  repeated string inference_hgnc_ids = 10;        // canonical HGNC ids aligned with inference_gene_symbols
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
@@ -2740,6 +2741,8 @@ message CollecTriAttr {
   // pmids moved to xrefs (field 4 reserved for backwards compatibility)
   string regulation = 5;                      // Regulation direction: "Activation", "Repression", "Unknown"
   string confidence = 6;                      // Confidence level: "High", "Low", or empty
+  string tf_hgnc = 7;                         // canonical HGNC id for the TF symbol
+  string target_hgnc = 8;                     // canonical HGNC id for the target symbol
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -78,6 +78,10 @@ func (c *collectri) update() {
 
 	log.Printf("CollecTRI: Found %d columns in header", len(colMap))
 
+	// Resolve TF/target symbols to HGNC ids once per symbol so the attribute
+	// carries the canonical id alongside the symbol.
+	geneResolver := newHgncSymbolResolver(c.d)
+
 	// Process entries
 	var savedEntries int
 	var skippedTRED int
@@ -137,6 +141,12 @@ func (c *collectri) update() {
 			Sources:    sources,
 			Regulation: regulation,
 			Confidence: confidence,
+		}
+		if hgncID, ok := geneResolver.resolve(tfGene); ok {
+			attr.TfHgnc = hgncID
+		}
+		if hgncID, ok := geneResolver.resolve(targetGene); ok {
+			attr.TargetHgnc = hgncID
 		}
 
 		// Marshal and save
@@ -206,11 +216,11 @@ func (c *collectri) collectEvidence(row []string, colMap map[string]int) ([]stri
 
 	// Source column mappings (present column, PMID column, optional regulation column, optional confidence column)
 	sourceColumns := []struct {
-		presentCol     string
-		pmidCol        string
-		regulationCol  string
-		confidenceCol  string
-		sourceNameCol  string // For TFactS which has "Source" column containing database names
+		presentCol    string
+		pmidCol       string
+		regulationCol string
+		confidenceCol string
+		sourceNameCol string // For TFactS which has "Source" column containing database names
 	}{
 		{"[ExTRI] present", "[ExTRI] PMID", "", "[ExTRI] Confidence", ""},
 		{"[HTRI] present", "[HTRI] PMID", "", "[HTRI] Confidence", ""},

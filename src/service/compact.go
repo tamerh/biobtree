@@ -1123,6 +1123,18 @@ func extractRefseqField(a *pbuf.RefSeqAttr, field string) string {
 			return "true"
 		}
 		return "false"
+	case "accession":
+		return a.Accession
+	case "version":
+		return a.Version
+	case "ensembl_transcript":
+		return a.EnsemblTranscript
+	case "ensembl_protein":
+		return a.EnsemblProtein
+	case "protein_accession":
+		return a.ProteinAccession
+	case "genomic_accession":
+		return a.GenomicAccession
 	case "seq_length":
 		return fmt.Sprintf("%d", a.SeqLength)
 	case "protein_length":

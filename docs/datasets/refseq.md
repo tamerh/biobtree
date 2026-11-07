@@ -58,6 +58,18 @@ MANE (Matched Annotation from NCBI and EBI) provides gold-standard transcript an
 
 MANE annotations include matched Ensembl transcript/protein IDs for seamless cross-database queries.
 
+Map/lite rows now expose the clinical role and version directly:
+
+```
+id|symbol|type|status|chromosome|is_mane_select|is_mane_plus_clinical|version|ensembl_transcript
+NM_001374258|BRAF|mRNA|REVIEWED|7|false|true|NM_001374258.1|ENST00000644969.2
+```
+
+- `is_mane_select` and `is_mane_plus_clinical` are independent; an accession can carry both roles.
+- `version` is the full versioned accession; the entry id/mane relation stays unversioned.
+- Exon coordinates: use `ensembl_transcript` (strip the version) with
+  `>>transcript>>exon`; exon rows carry start/end/strand/rank.
+
 ## Use Cases
 
 **1. Transcript Lookup**

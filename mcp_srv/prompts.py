@@ -24,7 +24,7 @@ relatedentrez: entrez  # related genes (bidirectional): NCBI gene_group (functio
 neighborentrez: entrez  # genomic neighbors (left/right/overlapping); edge carries distance + side, neighbor strand/position in attrs; filter to genes via [type!="biological-region"]
 gnomad_constraint: ensembl, entrez, hgnc, transcript  # gene LoF constraint (pLI/LOEUF/oe_lof); reach via >>ensembl>>gnomad_constraint
 drugcentral: chembl_molecule, pubchem, uniprot, ensembl, hgnc, entrez  # approved drugs -> targets/MOA + FDA/EMA/PMDA approval; reach via name/INN/InChIKey or compound (chembl_molecule/pubchem >> drugcentral)
-refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
+refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb  # MANE flags is_mane_select/is_mane_plus_clinical + version in lite rows; exon chain via ensembl_transcript -> transcript>>exon
 mirdb: refseq, hgnc, entrez  # gene-level: >>hgnc>>mirdb (reliable); >>hgnc>>refseq>>mirdb only sees one RefSeq transcript
 transcript: ensembl, exon, ufeature, alphamissense, civic_variant, gnomad_constraint, mavedb
 uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction, drugcentral, mavedb

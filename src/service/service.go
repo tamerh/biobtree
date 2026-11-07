@@ -1960,7 +1960,14 @@ func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string,
 		if ki != kj {
 			return ki < kj
 		}
-		return searchResultRank(collected[i], collected[i].Keyword) < searchResultRank(collected[j], collected[j].Keyword)
+		// Rank against the caller's term, not the result's own keyword: the
+		// old call made the exact-match bonus compare a row with itself and
+		// never fire.
+		query := ""
+		if ki >= 0 && ki < len(ids) {
+			query = ids[ki]
+		}
+		return searchResultRank(collected[i], query) < searchResultRank(collected[j], query)
 	})
 
 	response := &SearchLiteResponse{
@@ -2114,8 +2121,12 @@ func searchDatasetTier(name string) int {
 
 func searchResultRank(x *pbuf.Xref, query string) int {
 	score := searchDatasetTier(config.DataconfIDIntToString[x.Dataset]) * 10
-	if query != "" && strings.EqualFold(x.Identifier, query) {
-		score -= 5
+	if query = strings.TrimSpace(query); query != "" {
+		// An exact identifier or keyword match (alias/synonym) outranks
+		// partial text hits within the same dataset tier.
+		if strings.EqualFold(x.Identifier, query) || strings.EqualFold(x.Keyword, query) {
+			score -= 5
+		}
 	}
 	return score
 }

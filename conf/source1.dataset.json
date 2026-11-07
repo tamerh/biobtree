@@ -69,6 +69,7 @@
     "name": "dbSNP",
     "textPriority": "80",
     "path": "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/",
+    "mergeArchPath": "https://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606/database/organism_data/RsMergeArch.bcp.gz",
     "__ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
     "__path_ftp": "/snp/latest_release/VCF/",
     "__useLocalFile": "yes",
@@ -2217,5 +2218,19 @@
     "test_entries_count": "500",
     "bucketMethod": "numeric",
     "xrefSort": "gtopdb:affinityScore;gtopdb_ligand:affinityScore;uniprot:affinityScore"
+  },
+  "goa": {
+    "id": "828",
+    "name": "GOA Human",
+    "aliases": "GOA,GO annotations,gene ontology annotations,GO association",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
+    "path": "https://current.geneontology.org/annotations/goa_human.gaf.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "standard_name,collection,description,gene_count",
+    "compact_fields": "standard_name,collection,description,gene_count",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphabetic",
+    "federation": "main"
   }
 }

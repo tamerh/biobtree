@@ -85,6 +85,21 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 	}
 
 	baseCollection, namePrefix := normalizeEnrichCollection(collection)
+	chain := ">>hgnc>>msigdb"
+	background := msigdbBackground
+	if strings.HasPrefix(baseCollection, "GOA") {
+		chain = ">>hgnc>>goa"
+		// GOA is a separate human annotation universe; use its own size.
+		if idStr, ok := config.Dataconf["goa"]["id"]; ok {
+			if id, err := strconv.Atoi(idStr); err == nil {
+				if x, xerr := s.LookupByDataset("GOA:UNIVERSE", uint32(id)); xerr == nil && x != nil {
+					if a := x.GetMsigdb(); a != nil && a.GeneCount > 0 {
+						background = int(a.GeneCount)
+					}
+				}
+			}
+		}
+	}
 	sets := make(map[string]*enrichSet)
 	mappedGenes := make(map[string]bool)
 	mappedInputs := make(map[string]bool)
@@ -100,7 +115,7 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 	truncated := false
 	pageLimit := 100
 	for {
-		res, err := s.MapFilterLite(resolvedIDs, ">>hgnc>>msigdb", page)
+		res, err := s.MapFilterLite(resolvedIDs, chain, page)
 		if err != nil {
 			return nil, err
 		}
@@ -196,7 +211,7 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 			InputGenes:  ids,
 			MappedGenes: len(mappedGenes),
 			Collection:  collection,
-			Background:  msigdbBackground,
+			Background:  background,
 		},
 		Results:      []EnrichmentTerm{},
 		PagesFetched: pages,
@@ -227,8 +242,8 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 			// symbol resolution); publishing p=0 here would be wrong.
 			continue
 		}
-		p := hypergeomSF(k, msigdbBackground, K, n)
-		fold := (float64(k) / float64(n)) / (float64(K) / float64(msigdbBackground))
+		p := hypergeomSF(k, background, K, n)
+		fold := (float64(k) / float64(n)) / (float64(K) / float64(background))
 		terms = append(terms, EnrichmentTerm{
 			ID:         es.ID,
 			Name:       es.Name,
@@ -345,6 +360,20 @@ func normalizeEnrichCollection(collection string) (string, string) {
 	if collection == "" {
 		collection = "C5:GO"
 	}
+
+	// GO-native mode over GOA human annotations. "GO" means all namespaces;
+	// "GO:BP/MF/CC" narrows to one.
+	upper := strings.ToUpper(collection)
+	if upper == "GO" || upper == "GOA" {
+		return "GOA", ""
+	}
+	if strings.HasPrefix(upper, "GO:") {
+		return "GOA:" + strings.TrimPrefix(upper, "GO:"), ""
+	}
+	if strings.HasPrefix(upper, "GOA:") {
+		return upper, ""
+	}
+
 	if strings.HasPrefix(collection, "C5:GO:") {
 		ns := strings.ToUpper(strings.TrimPrefix(collection, "C5:GO:"))
 		switch ns {

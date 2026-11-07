@@ -53,8 +53,8 @@ func isValidNumericID(id string) bool {
 func (db *dbsnp) checkTabixAvailable() {
 	_, err := exec.LookPath("tabix")
 	if err != nil {
-		log.Fatalf("dbSNP: FATAL - tabix executable not found in PATH. "+
-			"Please install tabix (part of htslib) before processing dbSNP. "+
+		log.Fatalf("dbSNP: FATAL - tabix executable not found in PATH. " +
+			"Please install tabix (part of htslib) before processing dbSNP. " +
 			"Install with: conda install -c bioconda tabix")
 	}
 }
@@ -69,8 +69,8 @@ func (db *dbsnp) cleanupLocalTabixIndex() {
 
 	// Check multiple locations where tabix might find local index files
 	locations := []string{
-		tbiFileName,                                             // Current working directory
-		filepath.Join(config.Appconf["rootDir"], tbiFileName),   // Root directory
+		tbiFileName, // Current working directory
+		filepath.Join(config.Appconf["rootDir"], tbiFileName),          // Root directory
 		filepath.Join(config.Appconf["rootDir"], "cache", tbiFileName), // Cache directory
 	}
 
@@ -126,10 +126,70 @@ func (db *dbsnp) update() {
 	// In production mode, all chromosomes (1-22, X, Y, MT) are processed
 	db.parseAndSaveVCF(testLimit, idLogFile)
 
+	// Merged/retired rs IDs: index them as search aliases pointing at the
+	// current rs entry (e.g. rs397784008 -> rs59732348).
+	db.loadMergedRs(testLimit)
+
 	log.Printf("dbSNP: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 
 	// Signal completion to progress handler so status is updated from "processing" to "processed"
 	db.d.progChan <- &progressInfo{dataset: db.source, done: true}
+}
+
+// loadMergedRs indexes retired/merged rs IDs from RsMergeArch.bcp.gz as search
+// aliases pointing at the current rs entry. The merge archive is what makes an
+// old rs ID findable (the VCF OLD field is incomplete). Example:
+// rs397784008 -> rs59732348.
+func (db *dbsnp) loadMergedRs(testLimit int) {
+	path := config.Dataconf[db.source]["mergeArchPath"]
+	if path == "" {
+		return
+	}
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(db.source, "", "", path)
+	if err != nil {
+		log.Printf("dbSNP: merged rs archive unavailable: %v", err)
+		return
+	}
+	defer closeReaders(gz, ftpFile, client, localFile)
+
+	// Keep test builds fast; production indexes the full archive (~12M rows).
+	limit := 0
+	if config.IsTestMode() {
+		limit = 1000
+	} else if testLimit > 0 {
+		limit = testLimit
+	}
+
+	scanner := bufio.NewScanner(br)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 4*1024*1024)
+
+	count := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) < 2 {
+			continue
+		}
+		oldID := strings.TrimSpace(fields[0])
+		currentID := strings.TrimSpace(fields[1])
+		if oldID == "" || currentID == "" {
+			continue
+		}
+		// Text-search alias: old rs ID -> current dbSNP entry.
+		db.d.addXref("RS"+oldID, textLinkID, "RS"+currentID, db.source, true)
+		count++
+		if limit > 0 && count >= limit {
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Printf("dbSNP: merged rs archive read error: %v", err)
+	}
+	log.Printf("dbSNP: indexed %d merged rs IDs as search aliases", count)
 }
 
 // getVCFUrl returns the HTTPS URL for the dbSNP VCF file
@@ -451,7 +511,7 @@ func (db *dbsnp) processChromosome(
 	reader := bufio.NewReaderSize(stdout, 4*1024*1024) // 4MB buffer
 
 	var savedSNPs, skippedLines int64
-	var readError error // Track read errors for retry logic
+	var readError error        // Track read errors for retry logic
 	lastProgress := time.Now() // Initialize to now to avoid immediate logging
 
 	for {

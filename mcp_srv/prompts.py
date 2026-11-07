@@ -46,6 +46,7 @@ dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
 dbvar: clinvar, mondo, mim, orphanet, medgen, mesh, hpo, pubmed
 gnomad_sv: hgnc
+goa: hgnc  # GOA human GO annotations; entries are GO terms with human gene sets. Use for GO-native enrichment (collection GO / GO:BP / GO:MF / GO:CC)
 vega: ensembl  # VEGA/OTTHUMG transcript IDs -> ensembl gene
 chip_atlas_tfbs: hgnc, entrez  # ChIP-Atlas TF binding sites; entries are keyed by the TARGET gene and the TF is the edge source. A >>hgnc>>chip_atlas_tfbs chain from a TF gene is already TF-specific, so no tf filter is needed. No text search by TF name: reach via >>hgnc>>chip_atlas_tfbs or >>entrez>>chip_atlas_tfbs
 alphamissense: uniprot, transcript
@@ -363,6 +364,9 @@ USE FOR:
 DEFAULTS: collection="C5:GO" (GO BP/MF/CC); limit=20.
 - collection="C5:GO:BP" narrows to biological process, "C5:GO:MF" to
   molecular function, "C5:GO:CC" to cellular component.
+- GO-native mode uses GOA human annotations: collection="GO" (all namespaces)
+  or "GO:BP" / "GO:MF" / "GO:CC". Use this when a term is missing from the
+  MSigDB C5 collections.
 - Other MSigDB collections: "C2:CP:REACTOME", "C2:CP:PID", "C2:CGP", "H", etc.
 - Inputs must be HGNC symbols/IDs. Official symbols are resolved exactly (an
   ambiguous symbol such as "AR" is not expanded to every alias hit). Use
@@ -441,7 +445,7 @@ INPUT_SCHEMAS = {
         "type": "object",
         "properties": {
             "genes": {"type": "array", "items": {"type": "string"}, "description": "HGNC symbols or IDs"},
-            "collection": {"type": "string", "description": "MSigDB collection (default C5:GO; also C5:GO:BP/MF/CC, C2:CP:REACTOME, C2:CGP, H, ...)"},
+            "collection": {"type": "string", "description": "Collection (default C5:GO; also C5:GO:BP/MF/CC, C2:CP:REACTOME, C2:CGP, H, ...; GO-native: GO, GO:BP/MF/CC)"},
             "limit": {"type": "integer", "description": "Maximum enriched terms to return (default 20, max 100)"}
         },
         "required": ["genes"]

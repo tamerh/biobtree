@@ -1416,6 +1416,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["msigdb"] = attr
 		}
+	case "goa":
+		if attr := targetXref.GetMsigdb(); attr != nil {
+			attr.Id = id
+			evalMap["goa"] = attr
+		}
 	case "alphamissense":
 		if attr := targetXref.GetAlphamissense(); attr != nil {
 			attr.Id = id

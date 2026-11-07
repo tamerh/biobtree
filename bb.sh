@@ -215,6 +215,7 @@ DATASETS=(
     drugcentral
     faers
     msigdb
+    goa
 
     # Patents
     patent

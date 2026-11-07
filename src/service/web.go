@@ -511,7 +511,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// enrich handles /ws/enrich/: gene-set over-representation over MSigDB.
+// enrich handles /ws/enrich/: gene-set over-representation over MSigDB or GOA.
 // Params: i (comma-separated genes, required), collection (default C5:GO),
 // limit (default 20).
 func (web *Web) enrich(w http.ResponseWriter, r *http.Request) {

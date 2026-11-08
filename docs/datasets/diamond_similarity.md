@@ -112,6 +112,12 @@ Use: Identify structural templates for homology modeling
 
 - **Release Schedule**: Updated with each UniProt release
 - **Data Format**: TSV (12 columns, DIAMOND BLASTP outfmt 6)
+- **Production source path** (set in `conf/source1.dataset.json`):
+  `/data/bioyoda/out_prod/work/data/processed/diamond/merged/filtered_top100.tsv`
+  — 3.1 GB, 40,011,510 lines, built 2026-06-12. The old
+  `/data/bioyoda/snapshots/diamond_latest/...` copy no longer exists; do not point
+  the config back at it. The adjacent `merged_results.tsv` (16 G) is the
+  unfiltered intermediate and is not read by biobtree.
 - **Test Data**: 100 proteins from filtered_top10.tsv (test mode)
 - **License**: Data follows UniProt license terms
 - **Dependencies**: Requires UniProt dataset for cross-references

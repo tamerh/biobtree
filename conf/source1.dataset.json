@@ -731,7 +731,7 @@
     "checkURL": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
     "id": "39",
     "name": "DIAMOND Protein Similarity",
-    "path": "/data/bioyoda/snapshots/diamond_latest/data/processed/diamond/merged/filtered_top100.tsv",
+    "path": "/data/bioyoda/out_prod/work/data/processed/diamond/merged/filtered_top100.tsv",
     "aliases": "protein_similarity,diamond,protein similarity,sequence similarity,__BLASTP,__homology,__orthology",
     "url": "https://www.uniprot.org/uniprotkb/\u00a3{id}",
     "useLocalFile": "yes",

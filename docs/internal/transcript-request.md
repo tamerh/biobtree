@@ -1,6 +1,6 @@
 # Internal: Sugi Variant transcript request
 
-Status: Stage A + `refseq_exon` implemented, builds pending · Last updated: 2026-11-07 · Context: main `db_v55`, v2.20.4
+Status: Stage A + `refseq_exon` live in main `db_v56` · Last updated: 2026-11-08 · Context: v2.20.6
 
 Request from Sugi Variant: transcript-explicit variant pages. Four asks, mapped to
 what exists and what needs building.

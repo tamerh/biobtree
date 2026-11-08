@@ -1,6 +1,6 @@
 # Internal: API and dataset backlog
 
-Status: open (future work, not scheduled) · Last updated: 2026-11-06 · Context: v2.20.1, main `db_v55`
+Status: open (future work, not scheduled) · Last updated: 2026-11-08 · Context: v2.20.6, main `db_v56`
 
 Items reported by benchmark/preprint agents but deliberately not fixed now.
 The filter report (#1 below) was investigated and closed as not reproducible.
@@ -133,3 +133,20 @@ The benchmark golds are from a different VEGA release. No BioBTree fix.
 - **miRDB non-coding targets** — miRDB v6.0 ships only `NM_`/`XM_` accessions
   (zero `NR_` rows), so `ZNF22-AS1` (`NR_126421`) is genuinely absent from the
   source. BioBTree ingested the file correctly; no change.
+
+## 5. Canonical-ID grounding (done in v2.20.6, msigdb members deferred)
+
+Benchmark audit found 93/317 identifiers in answers were not present in tool
+output (mostly GO ids and HGNC ids recalled from memory). Added:
+
+- `biobtree_enrich`: `go_id` on every result (native GOA term, or the first
+  `go_terms` of the MSigDB set) plus `exact_source`.
+- `gencc` lite output: `gene_curie` (HGNC id) beside `gene_symbol`.
+- `collectri`: `tf_hgnc` / `target_hgnc` in the attribute and lite schema.
+- `ctd_disease_association`: `inference_hgnc_ids` aligned with
+  `inference_gene_symbols`.
+
+**Still open:** `msigdb` gene members (symbol → HGNC id) and the per-edge
+symbol lists of other datasets were left alone for payload size; the sets are
+large and the model rarely needs ids for every member.
+

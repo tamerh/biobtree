@@ -165,8 +165,8 @@ func main() {
 	})
 	checked, skipped, mismatches, multi := 0, 0, 0, 0
 	type fedTotals struct {
-		datasets, verified, noIndex, noState int
-		nodes, outEdges, indexEdges          int64
+		datasets, verified, noIndex, noState, verifiedNoState int
+		nodes, outEdges, indexEdges                           int64
 	}
 	totals := map[string]*fedTotals{}
 	for _, r := range rows {
@@ -186,6 +186,9 @@ func main() {
 		} else {
 			checked++
 			t.verified++
+			if r.coverage == "verified_no_state" {
+				t.verifiedNoState++
+			}
 			t.nodes += r.actualNodes
 			t.outEdges += r.actualOut
 			t.indexEdges += r.actualIndex
@@ -221,11 +224,11 @@ func main() {
 		tf, err := os.Create(*totalsPath)
 		check(err, "creating totals csv")
 		tw := csv.NewWriter(tf)
-		_ = tw.Write([]string{"federation", "datasets", "datasets_verified", "datasets_no_index_files", "datasets_no_state_entry", "nodes_verified", "edges_out_verified", "index_edges_verified"})
+		_ = tw.Write([]string{"federation", "datasets", "datasets_verified", "datasets_verified_no_state", "datasets_no_index_files", "datasets_no_state_entry", "nodes_verified", "edges_out_verified", "index_edges_verified"})
 		for _, f := range feds {
 			t := totals[f]
 			_ = tw.Write([]string{
-				f, strconv.Itoa(t.datasets), strconv.Itoa(t.verified), strconv.Itoa(t.noIndex), strconv.Itoa(t.noState),
+				f, strconv.Itoa(t.datasets), strconv.Itoa(t.verified), strconv.Itoa(t.verifiedNoState), strconv.Itoa(t.noIndex), strconv.Itoa(t.noState),
 				strconv.FormatInt(t.nodes, 10), strconv.FormatInt(t.outEdges, 10), strconv.FormatInt(t.indexEdges, 10),
 			})
 		}
@@ -239,8 +242,8 @@ func main() {
 	fmt.Fprintln(os.Stderr, "\nverified totals per federation (verified rows only):")
 	for _, f := range feds {
 		t := totals[f]
-		fmt.Fprintf(os.Stderr, "  %-14s datasets %3d (verified %3d, no-index %2d, no-state %2d)  nodes %14d  forward edges %16d  index edges %14d\n",
-			f, t.datasets, t.verified, t.noIndex, t.noState, t.nodes, t.outEdges, t.indexEdges)
+		fmt.Fprintf(os.Stderr, "  %-14s datasets %3d (verified %3d [%d state-gap], no-index %2d, no-state %2d)  nodes %14d  forward edges %16d  index edges %14d\n",
+			f, t.datasets, t.verified, t.verifiedNoState, t.noIndex, t.noState, t.nodes, t.outEdges, t.indexEdges)
 	}
 }
 
@@ -293,6 +296,12 @@ func verifyDataset(indexDirs []string, dataset, federation string, idToName map[
 		return r
 	}
 	r.hasFiles = true
+	// Index data exists but the state file has no entry for it: count the rows
+	// as verified (they are real data), but label the gap explicitly instead of
+	// calling it "no_state_entry" with numbers attached.
+	if r.coverage != "verified" {
+		r.coverage = "verified_no_state"
+	}
 
 	// Stale chunk runs can leave several files for one dataset. The newest is
 	// the most recent complete output; using it avoids double counting.
@@ -523,7 +532,8 @@ func loadDatasetConf(confDir string) (map[string]string, map[string]string, map[
 		}
 		isSource := strings.HasPrefix(filepath.Base(f), "source")
 		for name, props := range ds {
-			if id, ok := props["id"].(string); ok && id != "" {
+			id, hasID := props["id"].(string)
+			if hasID && id != "" {
 				ids[id] = name
 			}
 			fed, _ := props["federation"].(string)
@@ -531,7 +541,10 @@ func loadDatasetConf(confDir string) (map[string]string, map[string]string, map[
 				fed = "main"
 			}
 			feds[name] = fed
-			if isSource {
+			// Only datasets with an id are real, index-backed sources. Virtual
+			// entries (baochild, clparent, ...) have no id and no index of their
+			// own; they were inflating the "no state" row count.
+			if isSource && hasID && id != "" {
 				sources[name] = true
 			}
 		}

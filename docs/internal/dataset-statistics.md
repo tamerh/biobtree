@@ -415,18 +415,22 @@ index_edges_state, index_edges_actual, index_edges_delta, edges_in_actual`.
 `coverage` is one of:
 
 - `verified` — counts recomputed from a sorted index file
+- `verified_no_state` — index data exists but the state file has no entry for
+  the dataset; the rows are still counted in the totals (real data), and the
+  label flags a state-file gap worth investigating
 - `no_index_files` — in the state file but no `{dataset}_sorted*.index.gz` in
   any scanned index dir (generated elsewhere, or never built in this tree)
-- `no_state_entry` — in the dataset config but absent from the state file
-  (e.g. `esm1b`, intentionally off)
+- `no_state_entry` — a configured source dataset (has an `id`) with no state
+  entry and no index files (e.g. `esm1b`, intentionally off). Virtual config
+  entries without an id (`baochild`, `clparent`, …) are not listed at all.
 
 Rows are never dropped for missing files: that is what made the earlier CSV
 look like a complete graph when it was a main-federation sub-total. Never sum
 the `*_actual` columns across federations without grouping by `federation`;
 the `-totals` CSV has the verified per-federation totals
-(`federation, datasets, datasets_verified, datasets_no_index_files,
-datasets_no_state_entry, nodes_verified, edges_out_verified,
-index_edges_verified`) and the same table is printed to stderr.
+(`federation, datasets, datasets_verified, datasets_verified_no_state,
+datasets_no_index_files, datasets_no_state_entry, nodes_verified,
+edges_out_verified, index_edges_verified`) and the same table is printed to stderr.
 
 Rules it applies:
 

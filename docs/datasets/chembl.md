@@ -182,6 +182,16 @@ Use: Select appropriate models for drug screening
 
 - **Release Schedule**: ChEMBL releases quarterly
 - **Data Format**: SQLite database
+- **Version pinning**: `chemblVersion` in `conf/application.param.json`
+  (currently `37`) is deliberately pinned because the extractor runs
+  version-specific SQL; the SQLite tarball is downloaded once into
+  `raw_data/chembl/` and reused. To upgrade, bump `chemblVersion` and run the
+  chembl update.
+- **Freshness check**: `checkChEMBLVersion` (src/update/source_check.go) reads
+  the release number from EBI's `ChEMBLdb/latest/` listing, so `check` reports
+  `versioned_api / version: NN` for all `chembl_*` datasets instead of the
+  old "unknown source" false positives. On the 2026-11-08 check the upstream
+  release was 37, i.e. current.
 - **Test Data**: 20 entries per entity type (120 total)
 - **License**: CC BY-SA 3.0
 

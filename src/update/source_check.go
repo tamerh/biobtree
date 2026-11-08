@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jlaffaye/ftp"
@@ -369,6 +370,12 @@ func CheckSourceChanged(datasetName string, lastBuild *DatasetBuildInfo) (*Sourc
 		}, nil
 	}
 
+	// ChEMBL child datasets ingest a locally extracted JSONL, but freshness is
+	// driven by the upstream release number (pinned in chemblVersion).
+	if isChemBLDataset(datasetName) {
+		return checkChEMBLVersion(datasetName, lastBuild)
+	}
+
 	var result *SourceChangeInfo
 	var err error
 	var sourceURL string
@@ -448,6 +455,76 @@ func CheckSourceChanged(datasetName string, lastBuild *DatasetBuildInfo) (*Sourc
 	}
 
 	return result, err
+}
+
+// ChEMBL publishes one SQLite tarball per release under latest/. The version is
+// pinned in application.param.json (chemblVersion) because the parser runs
+// version-specific SQL, so the check reports whether a newer release exists
+// instead of pretending the local extract is an unknown source.
+const chemblLatestURL = "https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/"
+
+var (
+	chemblLatestOnce    sync.Once
+	chemblLatestVersion string
+	chemblLatestErr     error
+)
+
+var chemblReleasePattern = regexp.MustCompile(`chembl_(\d+)_sqlite\.tar\.gz`)
+
+func isChemBLDataset(name string) bool { return strings.HasPrefix(name, "chembl") }
+
+// getLatestChEMBLVersion reads the release number from EBI's latest/ listing.
+// Cached once per process: the check command asks about seven chembl datasets.
+func getLatestChEMBLVersion() (string, error) {
+	chemblLatestOnce.Do(func() {
+		client := &http.Client{Timeout: 30 * time.Second}
+		res, err := client.Get(chemblLatestURL)
+		if err != nil {
+			chemblLatestErr = err
+			return
+		}
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			chemblLatestErr = fmt.Errorf("HTTP %d from ChEMBL latest/", res.StatusCode)
+			return
+		}
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			chemblLatestErr = err
+			return
+		}
+		m := chemblReleasePattern.FindSubmatch(body)
+		if len(m) < 2 {
+			chemblLatestErr = fmt.Errorf("no chembl_NN_sqlite.tar.gz in EBI latest/ listing")
+			return
+		}
+		chemblLatestVersion = string(m[1])
+	})
+	return chemblLatestVersion, chemblLatestErr
+}
+
+// checkChEMBLVersion compares the pinned chemblVersion with the upstream release.
+func checkChEMBLVersion(datasetName string, lastBuild *DatasetBuildInfo) (*SourceChangeInfo, error) {
+	current := "37"
+	if v := config.Appconf["chemblVersion"]; v != "" {
+		current = v
+	}
+	info := &SourceChangeInfo{
+		SourceType:  SourceTypeVersionedAPI,
+		CheckMethod: "chembl_release",
+		NewVersion:  current,
+		SourceURL:   chemblLatestURL,
+	}
+	latest, err := getLatestChEMBLVersion()
+	if err != nil {
+		// A transport failure must not masquerade as an upstream change, or an
+		// offline --check would rebuild all seven ChEMBL datasets.
+		info.Error = fmt.Sprintf("ChEMBL release check failed: %v", err)
+		return info, nil
+	}
+	info.NewVersion = latest
+	info.HasChanged = latest != current
+	return info, nil
 }
 
 // checkLocalFile checks a local file or directory for changes by comparing modification time

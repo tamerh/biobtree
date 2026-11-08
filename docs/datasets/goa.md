@@ -56,6 +56,11 @@ biobtree_enrich(genes=[...], collection="GO:MF")
 
 - The GAF release is dated (May 2026 in the current download); terms annotated
   only in newer QuickGO data will still be missing. `GO:1903960` is one example:
-  QuickGO has two human annotations, the GAF release has none.
+  QuickGO has two human annotations (TCAF2, GOPC), the current GAF has none —
+  the TCAF2 curation is assigned to `GO:0044325` there instead.
+- Enrichment only tests sets of 5–500 genes, so even a term present with one or
+  two annotations (e.g. `GO:1903960` after a QuickGO sync) would not appear in
+  results. `tested_sets` and a term's absence are therefore not proof the
+  namespace or the annotation source is missing.
 - This dataset is the source for GO-native enrichment, not a replacement for
   the GO ontology (`go`), which carries the term hierarchy and definitions.

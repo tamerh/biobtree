@@ -356,6 +356,11 @@ Chain: dbSNP HGVS -> RefSeq transcript -> Ensembl transcript -> AlphaMissense
 
 ## Performance
 
+- **Prerequisites**: `tabix` must be on `PATH` (the parser shells out to it for
+  the remote VCFs and fails fast without it). On this host it lives in
+  `/data/miniconda3/envs/biobtree/bin`, so run
+  `PATH="/data/miniconda3/envs/biobtree/bin:$PATH" ./bb.sh out_prod --only dbsnp --force`.
+  `bb.sh` itself does not add the conda toolchain to `PATH` yet.
 - **Test Build**: ~15s (50,000 variants from chr1 only)
 - **Data Source**: VCF file from NCBI FTP (GCF_000001405.40.gz)
 - **Full Build**: Several hours (depends on chromosome selection)

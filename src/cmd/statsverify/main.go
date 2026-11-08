@@ -91,13 +91,17 @@ func main() {
 	check(err, "reading state")
 	check(json.Unmarshal(data, &state), "parsing state")
 
-	idToName, nameToFed, err := loadDatasetConf(*confDir)
+	idToName, nameToFed, sourceNames, err := loadDatasetConf(*confDir)
 	check(err, "loading dataset config")
 
 	indexDirs, err := locateIndexDirs(*rootDir, *indexFlag)
 	check(err, "locating index directories")
 
-	names := make([]string, 0, len(state.Datasets)+len(nameToFed))
+	// Row set: the datasets that have state entries, plus configured SOURCE
+	// datasets (source*.dataset.json) that never got one. Derived xref
+	// pseudo-datasets (xref*.dataset.json) are merge intermediate files, not
+	// queryable datasets, and are deliberately excluded.
+	names := make([]string, 0, len(state.Datasets)+len(sourceNames))
 	if *datasetList != "" {
 		for _, n := range strings.Split(*datasetList, ",") {
 			if n = strings.TrimSpace(n); n != "" {
@@ -110,7 +114,7 @@ func main() {
 			seen[n] = true
 			names = append(names, n)
 		}
-		for n := range nameToFed {
+		for n := range sourceNames {
 			if !seen[n] {
 				names = append(names, n)
 			}
@@ -495,24 +499,29 @@ func locateIndexDirs(root, only string) ([]string, error) {
 	return dirs, nil
 }
 
-// loadDatasetConf reads every *.dataset.json and returns dataset-id -> name and
-// dataset -> federation. Datasets without an explicit federation belong to main.
-func loadDatasetConf(confDir string) (map[string]string, map[string]string, error) {
+// loadDatasetConf reads the dataset configs and returns dataset-id -> name,
+// dataset -> federation, and the set of real SOURCE datasets (source*.dataset.json).
+// xref*.dataset.json entries are merge-time pseudo-datasets: their index files
+// exist (e.g. entrez_from_clinvar_sorted) but they are not queryable datasets, so
+// they must not appear as rows or count towards totals.
+func loadDatasetConf(confDir string) (map[string]string, map[string]string, map[string]bool, error) {
 	files, err := filepath.Glob(filepath.Join(confDir, "*.dataset.json"))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	ids := make(map[string]string)
 	feds := make(map[string]string)
+	sources := make(map[string]bool)
 	for _, f := range files {
 		data, err := os.ReadFile(f)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		var ds map[string]map[string]interface{}
 		if err := json.Unmarshal(data, &ds); err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", f, err)
+			return nil, nil, nil, fmt.Errorf("%s: %w", f, err)
 		}
+		isSource := strings.HasPrefix(filepath.Base(f), "source")
 		for name, props := range ds {
 			if id, ok := props["id"].(string); ok && id != "" {
 				ids[id] = name
@@ -522,9 +531,12 @@ func loadDatasetConf(confDir string) (map[string]string, map[string]string, erro
 				fed = "main"
 			}
 			feds[name] = fed
+			if isSource {
+				sources[name] = true
+			}
 		}
 	}
-	return ids, feds, nil
+	return ids, feds, sources, nil
 }
 
 func check(err error, what string) {

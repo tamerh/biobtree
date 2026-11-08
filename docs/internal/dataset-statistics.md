@@ -395,19 +395,38 @@ files:
 ```bash
 cd src
 go run ./cmd/statsverify \
-  -index ../out_prod/main/index,../out_prod/gnomad/index,../out_prod/dbsnp/index,../out_prod/cadd/index,../out_prod/conservation/index,../out_prod/predictions/index \
+  -root ../out_prod \
   -state ../out_prod/dataset_state.json \
   -conf ../conf \
+  -totals ../out_prod/stats_verified_totals.csv \
   > ../out_prod/stats_verified_all.csv
 ```
 
-Pass every federation's `index` directory in one run so `edges_in` includes
-cross-federation inbound edges. A single-directory run is fine for out-edges but
-gives partial inbound.
+`-root` scans every `<root>/<federation>/index` directory that exists (main,
+gnomad, cadd, conservation, dbsnp, predictions), so a new federation is picked
+up without editing the command. `-index main,gnomad` narrows the scan. Pass all
+federations in one run so `edges_in` includes cross-federation inbound edges; a
+single-federation run is fine for out-edges but gives partial inbound.
 
-Output columns: `dataset, multi_file, nodes_state, nodes_actual, nodes_delta,
-edges_out_state, edges_out_actual, edges_out_delta, index_edges_state,
-index_edges_actual, index_edges_delta, edges_in_actual`.
+Output columns: `dataset, federation, coverage, multi_file, nodes_state,
+nodes_actual, nodes_delta, edges_out_state, edges_out_actual, edges_out_delta,
+index_edges_state, index_edges_actual, index_edges_delta, edges_in_actual`.
+
+`coverage` is one of:
+
+- `verified` — counts recomputed from a sorted index file
+- `no_index_files` — in the state file but no `{dataset}_sorted*.index.gz` in
+  any scanned index dir (generated elsewhere, or never built in this tree)
+- `no_state_entry` — in the dataset config but absent from the state file
+  (e.g. `esm1b`, intentionally off)
+
+Rows are never dropped for missing files: that is what made the earlier CSV
+look like a complete graph when it was a main-federation sub-total. Never sum
+the `*_actual` columns across federations without grouping by `federation`;
+the `-totals` CSV has the verified per-federation totals
+(`federation, datasets, datasets_verified, datasets_no_index_files,
+datasets_no_state_entry, nodes_verified, edges_out_verified,
+index_edges_verified`) and the same table is printed to stderr.
 
 Rules it applies:
 
@@ -429,17 +448,19 @@ Known current caveats:
   (backup: `out_prod/dataset_state.json.bak-20261106`). `esm1b` is intentionally
   off (config points at a test fixture; it is not in the predictions DB).
   `protein_similarity` is the legacy predecessor of `diamond_similarity` and had
-  no index files. Both are excluded from the verified table. `diamond_similarity`
-  remains, but its source snapshot is currently missing so it cannot be rebuilt.
+  no index files. Both now appear in the CSV with `coverage=no_index_files` /
+  `no_state_entry` instead of being dropped, so their absence is explicit.
+  `diamond_similarity` remains, but its source snapshot is currently missing so
+  it cannot be rebuilt.
 - A dataset whose properties are written more than once has
   `state properties > verified nodes`, which makes `state xref_edges`
   (= forward writes − property writes) *lower* than the verified unique xrefs.
   This is why a few datasets show `edges_out_actual > edges_out_state`; it is
   not missing data. Use the verified columns.
-- Counts are per federation index directory. Run with all six `index` dirs for
-  complete cross-federation inbound. Results: `out_prod/stats_verified_all.csv`
-  / `.json` (CTD rows refreshed after its update; raw scan kept as
-  `stats_verified_all_scan.csv`).
+- Counts are per federation index directory. Run with `-root` so every
+  federation is scanned. Results: `out_prod/stats_verified_all.csv`,
+  `out_prod/stats_verified_totals.csv`, and `.err` (summary). The paper should
+  quote per-federation totals from the totals CSV, not a cross-federation sum.
 
 ## Verification commands
 

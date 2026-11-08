@@ -6,12 +6,20 @@
 // newest sorted file is used when a dataset has stale files from older chunk
 // runs (those are flagged as multi_file).
 //
+// Coverage: every dataset in the state file (and every dataset in the config)
+// gets a row, including ones with no sorted index file in this output tree.
+// Those carry coverage=no_index_files (or no_state_entry) instead of being
+// dropped, so a partial CSV can never be mistaken for the whole graph.
+// Each row names its federation; use the -totals CSV (or the stderr summary)
+// for per-federation totals. Do not sum across federations blindly.
+//
 // Usage (from the repo root):
 //
-//	go run ./cmd/statsverify -index out_prod/main/index -state out_prod/dataset_state.json -conf conf
+//	go run ./cmd/statsverify -root out_prod -state out_prod/dataset_state.json -conf conf -totals out_prod/stats_verified_totals.csv
 //
 // Optional:
 //
+//	-index main,gnomad         only these federation index dirs (relative to -root)
 //	-datasets hgnc,entrez,go   only these datasets
 //	-workers 8
 //
@@ -49,6 +57,8 @@ type stateFile struct {
 
 type result struct {
 	dataset     string
+	federation  string
+	coverage    string
 	stateNodes  int64
 	stateOut    int64
 	stateIndex  int64
@@ -67,10 +77,12 @@ type fileCounts struct {
 }
 
 func main() {
-	indexFlag := flag.String("index", "out_prod/main/index", "comma-separated federation index directories")
+	rootDir := flag.String("root", "out_prod", "output root containing <federation>/index directories")
+	indexFlag := flag.String("index", "", "comma-separated federation names to scan (default: every <federation>/index under -root)")
 	statePath := flag.String("state", "out_prod/dataset_state.json", "dataset_state.json")
 	confDir := flag.String("conf", "conf", "configuration directory")
-	datasetList := flag.String("datasets", "", "comma-separated dataset names (default: all in state)")
+	datasetList := flag.String("datasets", "", "comma-separated dataset names (default: all in state and config)")
+	totalsPath := flag.String("totals", "", "optional path for the per-federation totals CSV")
 	workers := flag.Int("workers", runtime.NumCPU(), "parallel dataset workers")
 	flag.Parse()
 
@@ -79,17 +91,13 @@ func main() {
 	check(err, "reading state")
 	check(json.Unmarshal(data, &state), "parsing state")
 
-	idToName, err := loadDatasetIDs(*confDir)
+	idToName, nameToFed, err := loadDatasetConf(*confDir)
 	check(err, "loading dataset config")
 
-	indexDirs := make([]string, 0, 4)
-	for _, d := range strings.Split(*indexFlag, ",") {
-		if d = strings.TrimSpace(d); d != "" {
-			indexDirs = append(indexDirs, d)
-		}
-	}
+	indexDirs, err := locateIndexDirs(*rootDir, *indexFlag)
+	check(err, "locating index directories")
 
-	names := make([]string, 0, len(state.Datasets))
+	names := make([]string, 0, len(state.Datasets)+len(nameToFed))
 	if *datasetList != "" {
 		for _, n := range strings.Split(*datasetList, ",") {
 			if n = strings.TrimSpace(n); n != "" {
@@ -97,8 +105,15 @@ func main() {
 			}
 		}
 	} else {
+		seen := make(map[string]bool)
 		for n := range state.Datasets {
+			seen[n] = true
 			names = append(names, n)
+		}
+		for n := range nameToFed {
+			if !seen[n] {
+				names = append(names, n)
+			}
 		}
 	}
 	sort.Strings(names)
@@ -111,7 +126,8 @@ func main() {
 		go func() {
 			defer wg.Done()
 			for name := range jobs {
-				results <- verifyDataset(indexDirs, name, idToName, state.Datasets[name])
+				st, ok := state.Datasets[name]
+				results <- verifyDataset(indexDirs, name, nameToFed[name], idToName, st, ok)
 			}
 		}()
 	}
@@ -128,27 +144,52 @@ func main() {
 	for r := range results {
 		rows = append(rows, r)
 	}
-	sort.Slice(rows, func(i, j int) bool { return rows[i].dataset < rows[j].dataset })
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].federation != rows[j].federation {
+			return rows[i].federation < rows[j].federation
+		}
+		return rows[i].dataset < rows[j].dataset
+	})
 
 	w := csv.NewWriter(os.Stdout)
 	_ = w.Write([]string{
-		"dataset", "multi_file",
+		"dataset", "federation", "coverage", "multi_file",
 		"nodes_state", "nodes_actual", "nodes_delta",
 		"edges_out_state", "edges_out_actual", "edges_out_delta",
 		"index_edges_state", "index_edges_actual", "index_edges_delta",
 		"edges_in_actual",
 	})
 	checked, skipped, mismatches, multi := 0, 0, 0, 0
+	type fedTotals struct {
+		datasets, verified, noIndex, noState int
+		nodes, outEdges, indexEdges          int64
+	}
+	totals := map[string]*fedTotals{}
 	for _, r := range rows {
+		t := totals[r.federation]
+		if t == nil {
+			t = &fedTotals{}
+			totals[r.federation] = t
+		}
+		t.datasets++
 		if !r.hasFiles {
 			skipped++
-			continue
+			if r.coverage == "no_state_entry" {
+				t.noState++
+			} else {
+				t.noIndex++
+			}
+		} else {
+			checked++
+			t.verified++
+			t.nodes += r.actualNodes
+			t.outEdges += r.actualOut
+			t.indexEdges += r.actualIndex
 		}
-		checked++
 		if r.multiFile {
 			multi++
 		}
-		if r.actualNodes != r.stateNodes || r.actualOut != r.stateOut || r.actualIndex != r.stateIndex {
+		if r.hasFiles && (r.actualNodes != r.stateNodes || r.actualOut != r.stateOut || r.actualIndex != r.stateIndex) {
 			mismatches++
 		}
 		mf := "no"
@@ -156,7 +197,7 @@ func main() {
 			mf = "yes"
 		}
 		_ = w.Write([]string{
-			r.dataset, mf,
+			r.dataset, r.federation, r.coverage, mf,
 			strconv.FormatInt(r.stateNodes, 10), strconv.FormatInt(r.actualNodes, 10), strconv.FormatInt(r.actualNodes-r.stateNodes, 10),
 			strconv.FormatInt(r.stateOut, 10), strconv.FormatInt(r.actualOut, 10), strconv.FormatInt(r.actualOut-r.stateOut, 10),
 			strconv.FormatInt(r.stateIndex, 10), strconv.FormatInt(r.actualIndex, 10), strconv.FormatInt(r.actualIndex-r.stateIndex, 10),
@@ -166,8 +207,37 @@ func main() {
 	w.Flush()
 	check(w.Error(), "writing csv")
 
-	fmt.Fprintf(os.Stderr, "\n%d dataset(s) checked, %d with mismatches, %d multi-file (newest used), %d skipped (no index files)\n",
+	feds := make([]string, 0, len(totals))
+	for f := range totals {
+		feds = append(feds, f)
+	}
+	sort.Strings(feds)
+
+	if *totalsPath != "" {
+		tf, err := os.Create(*totalsPath)
+		check(err, "creating totals csv")
+		tw := csv.NewWriter(tf)
+		_ = tw.Write([]string{"federation", "datasets", "datasets_verified", "datasets_no_index_files", "datasets_no_state_entry", "nodes_verified", "edges_out_verified", "index_edges_verified"})
+		for _, f := range feds {
+			t := totals[f]
+			_ = tw.Write([]string{
+				f, strconv.Itoa(t.datasets), strconv.Itoa(t.verified), strconv.Itoa(t.noIndex), strconv.Itoa(t.noState),
+				strconv.FormatInt(t.nodes, 10), strconv.FormatInt(t.outEdges, 10), strconv.FormatInt(t.indexEdges, 10),
+			})
+		}
+		tw.Flush()
+		check(tw.Error(), "writing totals csv")
+		check(tf.Close(), "closing totals csv")
+	}
+
+	fmt.Fprintf(os.Stderr, "\n%d dataset(s) checked, %d with mismatches, %d multi-file (newest used), %d without index files\n",
 		checked, mismatches, multi, skipped)
+	fmt.Fprintln(os.Stderr, "\nverified totals per federation (verified rows only):")
+	for _, f := range feds {
+		t := totals[f]
+		fmt.Fprintf(os.Stderr, "  %-14s datasets %3d (verified %3d, no-index %2d, no-state %2d)  nodes %14d  forward edges %16d  index edges %14d\n",
+			f, t.datasets, t.verified, t.noIndex, t.noState, t.nodes, t.outEdges, t.indexEdges)
+	}
 }
 
 var (
@@ -175,12 +245,17 @@ var (
 	inboundAccumulator = map[string]int64{}
 )
 
-func verifyDataset(indexDirs []string, dataset string, idToName map[string]string, st buildInfo) result {
+func verifyDataset(indexDirs []string, dataset, federation string, idToName map[string]string, st buildInfo, inState bool) result {
 	r := result{
 		dataset:    dataset,
+		federation: federation,
+		coverage:   "verified",
 		stateNodes: st.Properties,
 		stateOut:   st.XrefEdges,
 		stateIndex: st.IndexEdges,
+	}
+	if !inState {
+		r.coverage = "no_state_entry"
 	}
 	if r.stateOut == 0 && st.TotalEdges > 0 {
 		var props int64
@@ -208,6 +283,9 @@ func verifyDataset(indexDirs []string, dataset string, idToName map[string]strin
 		searchFiles = append(searchFiles, s...)
 	}
 	if len(forwardFiles) == 0 {
+		if r.coverage == "verified" {
+			r.coverage = "no_index_files"
+		}
 		return r
 	}
 	r.hasFiles = true
@@ -374,30 +452,79 @@ func newestFile(files []string) string {
 	return best
 }
 
-// loadDatasetIDs reads every *.dataset.json and returns dataset-id -> name.
-func loadDatasetIDs(confDir string) (map[string]string, error) {
-	files, err := filepath.Glob(filepath.Join(confDir, "*.dataset.json"))
+// locateIndexDirs returns the <root>/<federation>/index directories to scan.
+// With a federation list only those are used; otherwise every subdirectory
+// that contains an index/ is included, so a new federation is picked up
+// automatically instead of being silently left out.
+func locateIndexDirs(root, only string) ([]string, error) {
+	if only != "" {
+		dirs := make([]string, 0, 4)
+		for _, fed := range strings.Split(only, ",") {
+			fed = strings.TrimSpace(fed)
+			if fed == "" {
+				continue
+			}
+			d := filepath.Join(root, fed, "index")
+			if st, err := os.Stat(d); err == nil && st.IsDir() {
+				dirs = append(dirs, d)
+			}
+		}
+		if len(dirs) == 0 {
+			return nil, fmt.Errorf("no index directories found for %q under %s", only, root)
+		}
+		return dirs, nil
+	}
+	entries, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err
 	}
+	dirs := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if !e.IsDir() || strings.HasPrefix(e.Name(), "_") {
+			continue
+		}
+		d := filepath.Join(root, e.Name(), "index")
+		if st, err := os.Stat(d); err == nil && st.IsDir() {
+			dirs = append(dirs, d)
+		}
+	}
+	if len(dirs) == 0 {
+		return nil, fmt.Errorf("no <federation>/index directories under %s", root)
+	}
+	sort.Strings(dirs)
+	return dirs, nil
+}
+
+// loadDatasetConf reads every *.dataset.json and returns dataset-id -> name and
+// dataset -> federation. Datasets without an explicit federation belong to main.
+func loadDatasetConf(confDir string) (map[string]string, map[string]string, error) {
+	files, err := filepath.Glob(filepath.Join(confDir, "*.dataset.json"))
+	if err != nil {
+		return nil, nil, err
+	}
 	ids := make(map[string]string)
+	feds := make(map[string]string)
 	for _, f := range files {
 		data, err := os.ReadFile(f)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		var ds map[string]map[string]interface{}
 		if err := json.Unmarshal(data, &ds); err != nil {
-			return nil, fmt.Errorf("%s: %w", f, err)
+			return nil, nil, fmt.Errorf("%s: %w", f, err)
 		}
 		for name, props := range ds {
-			id, _ := props["id"].(string)
-			if id != "" {
+			if id, ok := props["id"].(string); ok && id != "" {
 				ids[id] = name
 			}
+			fed, _ := props["federation"].(string)
+			if fed == "" {
+				fed = "main"
+			}
+			feds[name] = fed
 		}
 	}
-	return ids, nil
+	return ids, feds, nil
 }
 
 func check(err error, what string) {

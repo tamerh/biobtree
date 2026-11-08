@@ -150,6 +150,7 @@ Tools available:
 - `biobtree_map` - Map through dataset chains
 - `biobtree_entry` - Get full entry details
 - `biobtree_atlas` - Curated Sugi Atlas summaries for genes, diseases, and drugs
+- `biobtree_variant` - Sugi Variant page for a specific small or structural variant
 
 See [MCP Server Documentation](mcp-server/) for setup instructions.
 

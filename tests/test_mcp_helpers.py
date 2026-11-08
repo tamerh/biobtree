@@ -19,6 +19,7 @@ import sys
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -56,6 +57,7 @@ _client_mod.BiobtreeError = _BiobtreeError
 sys.modules.setdefault("mcp_srv.biobtree_client", _client_mod)
 
 from mcp_srv import atlas  # noqa: E402
+from mcp_srv import variant  # noqa: E402
 from mcp_srv import tools  # noqa: E402
 from mcp_srv.prompts import INPUT_SCHEMAS  # noqa: E402
 
@@ -256,6 +258,147 @@ class TestEnrichTool(unittest.TestCase):
             )
         )
         self.assertEqual(calls["genes"], ["TP53", "BRCA1"])
+
+
+class TestVariantTool(unittest.TestCase):
+    MD = """# NM_000314.8(PTEN):c.389G>A (p.Arg130Gln)
+
+https://sugi.bio/variant/pten-p-arg130gln
+
+_Release v1.6.0_
+
+## Summary
+
+Pathogenic in PTEN.
+
+## Identity {#identity}
+
+rs121909229, 10:87933148:G:A
+
+## Clinical significance
+
+PTEN hamartoma tumor syndrome.
+"""
+
+    def test_tool_registered_for_mcp_and_chat(self):
+        self.assertIn("biobtree_variant", [t.name for t in tools.MCP_TOOLS])
+        self.assertIn(
+            "biobtree_variant",
+            [t["function"]["name"] for t in tools.CHAT_TOOLS],
+        )
+        self.assertIn("biobtree_variant", INPUT_SCHEMAS)
+        self.assertEqual(INPUT_SCHEMAS["biobtree_variant"]["required"], ["entities"])
+
+    def test_digest_is_summary_plus_identity(self):
+        d = variant._digest(self.MD)
+        self.assertIn("PTEN", d)
+        self.assertIn("Pathogenic in PTEN", d)
+        self.assertIn("rs121909229", d)
+        self.assertNotIn("hamartoma", d)
+
+    def test_compact_hit_drops_noise(self):
+        hit = {
+            "kind": "variant", "slug": "pten-p-arg130gln", "gene": "PTEN",
+            "hgvs_p": "p.Arg130Gln", "classification": "Pathogenic",
+            "canonical_url": "https://sugi.bio/variant/pten-p-arg130gln",
+            "markdown_url": "https://sugi.bio/variant/pten-p-arg130gln.md",
+            "cached": True,
+        }
+        out = variant._compact_hit(hit)
+        self.assertEqual(out["slug"], "pten-p-arg130gln")
+        self.assertEqual(out["canonical_url"], hit["canonical_url"])
+        self.assertNotIn("markdown_url", out)
+        self.assertNotIn("cached", out)
+
+    def _patch(self, data, md=None, section_of=None):
+        class Ctx:
+            def __enter__(self_inner):
+                self_inner.resolve = mock.patch.object(
+                    variant, "_resolve", return_value=(data, "v1.6.0", None)
+                )
+                self_inner.fetch = mock.patch.object(
+                    variant, "_fetch_md",
+                    side_effect=lambda url: (md, url[:-3], None),
+                )
+                self_inner.resolve.start()
+                self_inner.fetch.start()
+                return self_inner
+
+            def __exit__(self_inner, *exc):
+                self_inner.fetch.stop()
+                self_inner.resolve.stop()
+                return False
+
+        return Ctx()
+
+    def test_single_hit_returns_digest_and_sections(self):
+        data = {"ambiguous": False, "hits": [{
+            "kind": "variant", "slug": "pten-p-arg130gln",
+            "canonical_url": "https://sugi.bio/variant/pten-p-arg130gln",
+            "markdown_url": "https://sugi.bio/variant/pten-p-arg130gln.md",
+        }]}
+        with self._patch(data, md=self.MD):
+            out = variant.variant_lookup(["PTEN R130Q"])
+        self.assertEqual(len(out["results"]), 1)
+        item = out["results"][0]
+        self.assertIn("Pathogenic in PTEN", item["content"])
+        self.assertIn("Identity", item["sections"])
+        self.assertEqual(out["ambiguous"], [])
+        self.assertEqual(out["not_found"], [])
+
+    def test_ambiguous_returns_compact_list_without_pages(self):
+        hits = [
+            {"kind": "variant", "slug": "pten-p-arg130gln", "gene": "PTEN",
+             "canonical_url": "https://sugi.bio/variant/pten-p-arg130gln",
+             "markdown_url": "https://sugi.bio/variant/pten-p-arg130gln.md"},
+            {"kind": "variant", "slug": "pten-p-arg130leu", "gene": "PTEN",
+             "canonical_url": "https://sugi.bio/variant/pten-p-arg130leu",
+             "markdown_url": "https://sugi.bio/variant/pten-p-arg130leu.md"},
+        ]
+        data = {"ambiguous": True, "hits": hits}
+        with mock.patch.object(variant, "_resolve", return_value=(data, "v1.6.0", None)), \
+                mock.patch.object(variant, "_fetch_md") as fetch:
+            out = variant.variant_lookup(["rs121909229"])
+            fetch.assert_not_called()
+        self.assertEqual(out["results"], [])
+        self.assertEqual(len(out["ambiguous"]), 1)
+        entry = out["ambiguous"][0]
+        self.assertTrue(entry["ambiguous"])
+        self.assertEqual(len(entry["hits"]), 2)
+        self.assertIn("Do not guess", entry["note"])
+
+    def test_ambiguous_include_digests_fetches_limited_pages(self):
+        hits = [
+            {"kind": "variant", "slug": "v%d" % i, "gene": "G%d" % i,
+             "markdown_url": "https://sugi.bio/variant/v%d.md" % i}
+            for i in range(8)
+        ]
+        data = {"ambiguous": True, "hits": hits}
+        with self._patch(data, md=self.MD):
+            out = variant.variant_lookup(["rsX"], include="digests")
+        self.assertEqual(len(out["ambiguous"][0]["digests"]), variant._MAX_DIGESTS)
+
+    def test_not_found_is_distinct_from_fetch_error(self):
+        with mock.patch.object(variant, "_resolve", return_value=(None, "", None)):
+            out = variant.variant_lookup(["unknown"])
+        self.assertEqual(out["not_found"], ["unknown"])
+        self.assertNotIn("fetch_errors", out)
+
+        with mock.patch.object(variant, "_resolve", return_value=(None, "", "HTTP 503")):
+            out = variant.variant_lookup(["flaky"])
+        self.assertEqual(out["not_found"], [])
+        self.assertEqual(out["fetch_errors"][0]["query"], "flaky")
+
+    def test_section_selects_one_zone(self):
+        data = {"ambiguous": False, "hits": [{
+            "kind": "variant", "slug": "pten-p-arg130gln",
+            "canonical_url": "https://sugi.bio/variant/pten-p-arg130gln",
+            "markdown_url": "https://sugi.bio/variant/pten-p-arg130gln.md",
+        }]}
+        with self._patch(data, md=self.MD):
+            out = variant.variant_lookup(["PTEN R130Q"], section="Clinical significance")
+        self.assertIn("hamartoma", out["results"][0]["content"])
+        self.assertNotIn("rs121909229", out["results"][0]["content"])
 
 
 if __name__ == "__main__":

@@ -352,6 +352,19 @@ CALL THIS FIRST for a gene/disease/drug question (what it is, its biology, disea
 RETURNS: per entity {type, canonical_url, content, sections} + not_covered list"""
 
 
+DESC_VARIANT = """Sugi Variant reference for one specific small variant or structural variant (built from ClinVar, AlphaMissense and dbVar data).
+
+SYNTAX: biobtree_variant(entities=["PTEN R130Q"])
+
+CALL for a specific change: its classification, review status, rsID, coordinate, transcript/HGVS identity, computational & population evidence, associated conditions, or the dbVar record for a structural variant. Cite the returned canonical_url.
+
+- Resolution keys: slug, rsID, GRCh38 coordinate (10:87933148:G:A), GENE + HGVS ("PTEN R130Q"), ClinVar VCV..., dbVar NSSV.../nsv..., exact SV coordinate, or a locus chr:start-end.
+- A single hit returns a digest (Summary + Identity) and the page's `sections`; pass section="Identity" (a name from `sections`) for one zone, or full=true for the whole page.
+- If `ambiguous` is true, do not guess and do not summarize all candidates as if they were one variant; pass slug= or gene= to disambiguate, or ask the user which change they mean. `include="digests"` returns Summary+Identity for up to five candidates, still marked ambiguous.
+- Use biobtree_map / biobtree_entry for identifier mappings or per-dataset records; use biobtree_atlas for gene/disease/drug overviews.
+
+RETURNS: results [{entity, kind, slug, canonical_url, release, content, sections}], ambiguous [{query, hits, note}], not_found, fetch_errors"""
+
 DESC_ENRICH = """Gene-set over-representation for a list of genes.
 
 SYNTAX: biobtree_enrich(genes=["TP53","BRCA1",...], collection="C5:GO", limit=20)
@@ -393,6 +406,7 @@ TOOL_DESCRIPTIONS = {
     "biobtree_map": DESC_MAP,
     "biobtree_entry": DESC_ENTRY,
     "biobtree_atlas": DESC_ATLAS,
+    "biobtree_variant": DESC_VARIANT,
     "biobtree_enrich": DESC_ENRICH,
 }
 
@@ -443,6 +457,18 @@ INPUT_SCHEMAS = {
             "entities": {"type": "array", "items": {"type": "string"}, "description": "Gene symbols / disease names / drug names from the question"},
             "section": {"type": "string", "description": "Return one section instead of the digest; use a name from the result's `sections` (e.g. 'Disease & clinical')"},
             "full": {"type": "boolean", "description": "Return the entire page (large; may exceed output limits - avoid for multiple entities)"}
+        },
+        "required": ["entities"]
+    },
+    "biobtree_variant": {
+        "type": "object",
+        "properties": {
+            "entities": {"type": "array", "items": {"type": "string"}, "description": "Variant keys: slug, rsID, GRCh38 coordinate, GENE+HGVS, VCV/NSSV id, or locus chr:start-end"},
+            "gene": {"type": "string", "description": "Optional gene symbol to disambiguate a multi-hit query"},
+            "slug": {"type": "string", "description": "Exact variant page slug"},
+            "section": {"type": "string", "description": "Return one section instead of the digest; use a name from the result's `sections` (e.g. 'Identity')"},
+            "full": {"type": "boolean", "description": "Return the entire page (large; avoid for multiple entities)"},
+            "include": {"type": "string", "enum": ["none", "digests"], "description": "For ambiguous multi-hit results only: return a digest for up to five candidates"}
         },
         "required": ["entities"]
     },

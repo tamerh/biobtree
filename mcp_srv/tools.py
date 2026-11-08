@@ -45,6 +45,11 @@ MCP_TOOLS = [
         inputSchema=INPUT_SCHEMAS["biobtree_atlas"]
     ),
     Tool(
+        name="biobtree_variant",
+        description=TOOL_DESCRIPTIONS["biobtree_variant"],
+        inputSchema=INPUT_SCHEMAS["biobtree_variant"]
+    ),
+    Tool(
         name="biobtree_enrich",
         description=TOOL_DESCRIPTIONS["biobtree_enrich"],
         inputSchema=INPUT_SCHEMAS["biobtree_enrich"]
@@ -90,6 +95,14 @@ CHAT_TOOLS = [
             "name": "biobtree_atlas",
             "description": TOOL_DESCRIPTIONS["biobtree_atlas"],
             "parameters": INPUT_SCHEMAS["biobtree_atlas"]
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "biobtree_variant",
+            "description": TOOL_DESCRIPTIONS["biobtree_variant"],
+            "parameters": INPUT_SCHEMAS["biobtree_variant"]
         }
     },
     {
@@ -269,6 +282,21 @@ async def execute_tool(
                 arguments["entities"],
                 arguments.get("section"),
                 bool(arguments.get("full", False)),
+            )
+            return _truncate_result(res, max_result_length)
+        elif tool_name == "biobtree_variant":
+            # Variant pages come from the Sugi Variant reference, not the
+            # biobtree API. The helper enforces the ambiguity policy and the
+            # atlas-style content budget; this guarantees valid JSON either way.
+            from .variant import variant_lookup
+            res = await asyncio.to_thread(
+                variant_lookup,
+                arguments["entities"],
+                arguments.get("gene"),
+                arguments.get("slug"),
+                arguments.get("section"),
+                bool(arguments.get("full", False)),
+                arguments.get("include", "none"),
             )
             return _truncate_result(res, max_result_length)
         elif tool_name == "biobtree_enrich":

@@ -34,6 +34,7 @@ Add to Claude Desktop settings:
 | `biobtree_map` | Map identifiers through dataset chains |
 | `biobtree_entry` | Get full details for an entry |
 | `biobtree_atlas` | Curated [Sugi Atlas](https://sugi.bio/atlas) summaries for genes, diseases, and drugs |
+| `biobtree_variant` | [Sugi Variant](https://sugi.bio/variant) page for one specific small or structural variant |
 
 ## Atlas grounding (`biobtree_atlas`)
 
@@ -49,6 +50,24 @@ biobtree_atlas(entities=["TP53", "imatinib", "breast carcinoma"])
 
 Resolution uses the Atlas name→slug manifest (cached at startup; restart to refresh). Pages are fetched live from `sugi.bio/atlas/<type>/<slug>/index.md`, so coverage always reflects the latest Atlas.
 
+## Variant grounding (`biobtree_variant`)
+
+For a **specific change** (classification, review status, rsID, coordinate, transcript/HGVS identity, computational evidence, associated conditions, or the dbVar record of a structural variant), `biobtree_variant` resolves the key against the Sugi Variant reference and returns the page content plus a citable `canonical_url`.
+
+```text
+biobtree_variant(entities=["PTEN R130Q"])
+biobtree_variant(entities=["rs121909229"])          # several alleles -> ambiguous list
+biobtree_variant(entities=["NSSV15120701"])         # dbVar structural variant
+biobtree_variant(entities=["9:72500000-72900000"])  # overlapping SVs
+```
+
+- Keys: slug, rsID, GRCh38 coordinate, GENE + HGVS, ClinVar `VCV…`, dbVar `NSSV…`/`nsv…`, exact SV coordinate, or a locus `chr:start-end`.
+- One hit returns a digest (Summary + Identity) and the page's `sections`; use `section="Identity"` for one zone or `full=true` for the whole page.
+- Many hits return a compact `ambiguous` list and **no page content**. Never collapse candidates into one variant: pass `slug=` / `gene=` or ask which change is meant. `include="digests"` adds Summary+Identity for up to five candidates, still marked ambiguous.
+- A failed fetch is reported in `fetch_errors`, separate from `not_found` (missing coverage).
+
+Environment mirrors Atlas: `VARIANT_URL` (default `https://sugi.bio/variant`) and `VARIANT_INSECURE_TLS=1` for the host-local hop.
+
 ## Example Queries
 
 Once connected, ask Claude:
@@ -59,6 +78,7 @@ Once connected, ask Claude:
 - "Find drugs that target TP53"
 - "What pathways involve P04637?"
 - "Show me pathogenic variants in BRCA2"
+- "What is the classification of PTEN R130Q?" (variant page)
 
 ## API Endpoints
 

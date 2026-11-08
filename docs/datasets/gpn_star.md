@@ -57,3 +57,22 @@ weighted or ACMG-labeled signal** (same status as raw CADD). **SNV-only** (no in
   conservation) / Gnocchi (non-coding constraint). See VARIANT_PREDICTOR_ROADMAP.md.
 - Supersedes the earlier GPN-MSA plan (which tracked local mutation rate and had no
   calibration — the Variant team flagged it 2026-10-13).
+
+## Status (2026-11-08) — future work, deferred until after the paper
+
+Prepared but **not generated**:
+
+- config (822), parser, docs and `gpn_star_prepare.py` are in place;
+- `raw_data/gpn_star/` holds the source parquet (71 GB) and the ingest-ready
+  `gpn_star_v.tsv.gz` (98 GB, built 2026-10-14);
+- no `gpn_star` federation database exists and nothing queries it.
+
+Reason for deferral: the federation needs roughly another 360 GB on top of the
+main/dbsnp/cadd/conservation versions, which did not fit at the time. Disk is
+now sufficient (`/data2` has >1.5 TB free), so the only blocker is deciding
+whether the paper needs this axis.
+
+**Revisit after the paper.** The prepared TSV is kept on purpose: it means a
+future build starts directly at
+`./bb.sh out_prod --only gpn_star --force --generate-after --federation gpn_star`
+without re-downloading or re-preparing 169 GB of source data.

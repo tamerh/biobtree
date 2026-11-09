@@ -36,10 +36,10 @@ type Conf struct {
 	versionTag            string
 
 	// Federation support - datasets can be assigned to separate LMDB databases
-	DatasetFederation       map[uint32]string   // datasetID -> federation name (e.g., 3 -> "dbsnp")
-	DatasetNameFederation   map[string]string   // datasetName -> federation name (e.g., "dbsnp" -> "dbsnp")
-	FederationDatasets      map[string][]uint32 // federation -> list of datasetIDs
-	Federations             []string            // list of all unique federations
+	DatasetFederation     map[uint32]string   // datasetID -> federation name (e.g., 3 -> "dbsnp")
+	DatasetNameFederation map[string]string   // datasetName -> federation name (e.g., "dbsnp" -> "dbsnp")
+	FederationDatasets    map[string][]uint32 // federation -> list of datasetIDs
+	Federations           []string            // list of all unique federations
 
 	// Test mode fields
 	TestMode      bool   // Whether in test mode
@@ -613,6 +613,9 @@ func (c *Conf) IsTestMode() bool {
 
 // GetTestLimit returns the test entry limit for a dataset
 // Returns -1 if no limit (process full dataset) or if not in test mode
+// BinaryVersion returns the vMAJOR.MINOR.PATCH tag this binary was built as.
+func (c *Conf) BinaryVersion() string { return c.versionTag }
+
 func (c *Conf) GetTestLimit(dataset string) int {
 	if !c.TestMode {
 		return -1 // No limit in production mode

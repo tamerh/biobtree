@@ -8,6 +8,7 @@
 | `/api/map` | GET | Map through dataset chains |
 | `/api/entry` | GET | Get full entry details |
 | `/api/meta` | GET | List all datasets |
+| `/api/release` | GET | Latest build's release metadata snapshot (`?id=` for a specific one) |
 
 ### Search
 
@@ -74,6 +75,34 @@ GET /api/help?topic={topic}
 - `topic` (optional): `edges`, `filters`, `hierarchies`, `patterns`, `examples`, or `all` (default)
 
 Returns biobtree schema reference including dataset connections and query patterns.
+
+### Release metadata snapshot
+
+Every successful generate writes an immutable metadata record beside the databases:
+
+```
+<out>/releases/<release_id>.json   # never overwritten
+<out>/releases/current.json        # pointer to the newest one
+```
+
+`release_id` is `<UTC timestamp>-<federation>-<db_vN>`, e.g.
+`20261109T110653Z-main-db_v56`. Each snapshot embeds the exact `/ws/meta`
+payload (datasets, `data_db_version`, `data_version`, thresholds, freshness
+flags) plus the `federations` map (`main: db_v56`, `dbsnp: db_v4`, …) and the
+biobtree binary version — so a paper or benchmark can pin provenance without a
+running server. Size is ~165 KB per release.
+
+```
+GET /api/release                      # current.json
+GET /api/release?id=<release_id>      # one snapshot
+```
+
+Backfill an existing tree (e.g. a release that predates the feature):
+
+```bash
+cd src
+go run ./cmd/releasesnap -out ../out_prod -conf ../ -federation main -db-version db_v56 -binary-version v2.20.6
+```
 
 ## Public API
 

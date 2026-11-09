@@ -8,7 +8,9 @@ import (
 	"log"
 	"net/http"
 	_ "net/http/pprof" // Register pprof handlers
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -66,6 +68,9 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 	http.Handle("/ws/", searchGz)
 	http.Handle("/ws/meta", metaGz)
 	http.Handle("/ws/meta/", metaGz)
+	releaseGz := gziphandler.GzipHandler(http.HandlerFunc(web.release))
+	http.Handle("/api/release", releaseGz)
+	http.Handle("/api/release/", releaseGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
 	http.Handle("/ws/enrich/", enrichGz)
@@ -129,6 +134,43 @@ func (web *Web) checkRequest(r *http.Request) error {
 		return fmt.Errorf("Only GET supported")
 	}
 
+}
+
+// release serves the latest build's immutable metadata snapshot, or a specific
+// one with ?id=<release_id>. Snapshots are written by the generate phase to
+// <out>/releases/ (see update.WriteReleaseSnapshot).
+func (web *Web) release(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("content-type", "application/json")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	dir := filepath.Join(config.Appconf["outDir"], "releases")
+	name := "current.json"
+	if id := r.URL.Query().Get("id"); id != "" {
+		// Only a bare release id is accepted: no slashes, no traversal.
+		ok := id != "" && len(id) <= 200
+		for _, c := range id {
+			if !(c == '-' || c == '_' || c == '.' || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				ok = false
+				break
+			}
+		}
+		if !ok {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"error":"invalid release id"}`))
+			return
+		}
+		name = id
+		if !strings.HasSuffix(name, ".json") {
+			name += ".json"
+		}
+	}
+	body, err := os.ReadFile(filepath.Join(dir, name))
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"error":"release metadata not found"}`))
+		return
+	}
+	w.Write(body)
 }
 
 func (web *Web) meta(w http.ResponseWriter, r *http.Request) {

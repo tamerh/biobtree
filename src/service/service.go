@@ -916,58 +916,70 @@ func (s *Service) aliasIDs(alias string) ([]string, error) {
 }
 
 func (s *Service) meta() *pbuf.MetaResponse {
+	return buildMeta(config.Dataconf, s.datasetDBVersion)
+}
+
+// BuildMetaJSON renders the /ws/meta payload for a build-time release snapshot.
+// It takes the dataset config explicitly because the generate phase has no
+// running Service (the package-level config would be nil there).
+// versionOf maps a dataset config key to the db_vN that federation was built as.
+func BuildMetaJSON(dataconf map[string]map[string]string, versionOf func(datasetKey string) string) ([]byte, error) {
+	return json.Marshal(buildMeta(dataconf, versionOf))
+}
+
+func buildMeta(dataconf map[string]map[string]string, versionOf func(datasetKey string) string) *pbuf.MetaResponse {
 
 	meta := pbuf.MetaResponse{}
 	results := map[string]*pbuf.MetaKeyValue{}
 
-	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" { // not send the alias
-			id := config.Dataconf[k]["id"]
+	for k := range dataconf {
+		if dataconf[k]["_alias"] == "" { // not send the alias
+			id := dataconf[k]["id"]
 			if _, ok := results[id]; !ok {
 				datasetConf := map[string]string{}
 				keyvals := &pbuf.MetaKeyValue{}
 
-				if len(config.Dataconf[k]["name"]) > 0 {
-					datasetConf["name"] = config.Dataconf[k]["name"]
+				if len(dataconf[k]["name"]) > 0 {
+					datasetConf["name"] = dataconf[k]["name"]
 				} else {
 					datasetConf["name"] = k
 				}
 
-				if len(config.Dataconf[k]["linkdataset"]) > 0 {
-					datasetConf["linkdataset"] = config.Dataconf[k]["linkdataset"]
+				if len(dataconf[k]["linkdataset"]) > 0 {
+					datasetConf["linkdataset"] = dataconf[k]["linkdataset"]
 				}
 
-				if _, ok := config.Dataconf[k]["attrs"]; ok {
-					datasetConf["attrs"] = config.Dataconf[k]["attrs"]
+				if _, ok := dataconf[k]["attrs"]; ok {
+					datasetConf["attrs"] = dataconf[k]["attrs"]
 				}
 
 				// keyScheme: how a client addresses this dataset. Explicit conf
 				// field when set, else derived from intervalIndex. Lets API
 				// consumers tell "chr:pos:ref:alt" from "interval (query by
 				// position)" from "own accession" without reading the source.
-				if ks := config.Dataconf[k]["keyScheme"]; ks != "" {
+				if ks := dataconf[k]["keyScheme"]; ks != "" {
 					datasetConf["keyScheme"] = ks
-				} else if config.Dataconf[k]["intervalIndex"] == "yes" {
+				} else if dataconf[k]["intervalIndex"] == "yes" {
 					datasetConf["keyScheme"] = "interval; query by variant position (chr:pos)"
 				}
 
 				// data_version carries source version + any reporting threshold
 				// (e.g. SpliceAI delta>=0.2), so a missing score can be read as
 				// "below threshold" rather than "not assessed".
-				if dv := config.Dataconf[k]["data_version"]; dv != "" {
+				if dv := dataconf[k]["data_version"]; dv != "" {
 					datasetConf["data_version"] = dv
 				}
 				// Explicit, parseable reporting threshold where a dataset is filtered.
-				if th := config.Dataconf[k]["threshold"]; th != "" {
+				if th := dataconf[k]["threshold"]; th != "" {
 					datasetConf["threshold"] = th
 				}
-				if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
+				if sv := dataconf[k]["scoreVariant"]; sv != "" {
 					datasetConf["scoreVariant"] = sv
 				}
 				// data_db_version: the db_vN this running server actually loaded for
 				// the dataset's federation — real data provenance, unlike the shared
 				// config-derived last_built.
-				if dbv := s.datasetDBVersion(k); dbv != "" {
+				if dbv := versionOf(k); dbv != "" {
 					datasetConf["data_db_version"] = dbv
 				}
 
@@ -1009,7 +1021,9 @@ func jsonString(s string) string {
 	return string(b)
 }
 
-func (s *Service) metajson() string {
+// MetaJSONString renders the /ws/meta payload from explicit config maps so the
+// generate phase can write the same metadata snapshot without a running Service.
+func MetaJSONString(dataconf map[string]map[string]string, appconf map[string]string, versionOf func(string) string) string {
 
 	var b strings.Builder
 	b.WriteString(`{ "datasets":{`)
@@ -1025,7 +1039,7 @@ func (s *Service) metajson() string {
 		Status        string `json:"status"`
 	}
 	freshness := map[string]dsFreshness{}
-	if raw, err := ioutil.ReadFile(filepath.Join(config.Appconf["outDir"], "dataset_state.json")); err == nil {
+	if raw, err := ioutil.ReadFile(filepath.Join(appconf["outDir"], "dataset_state.json")); err == nil {
 		var st struct {
 			Datasets map[string]dsFreshness `json:"datasets"`
 		}
@@ -1038,7 +1052,7 @@ func (s *Service) metajson() string {
 	// file written by `biobtree check`, never the build state.
 	updateAvail := map[string]bool{}
 	freshnessCheckedAt := ""
-	if raw, err := ioutil.ReadFile(filepath.Join(config.Appconf["outDir"], "freshness.json")); err == nil {
+	if raw, err := ioutil.ReadFile(filepath.Join(appconf["outDir"], "freshness.json")); err == nil {
 		var fc struct {
 			CheckedAt string          `json:"checked_at"`
 			Datasets  map[string]bool `json:"datasets"`
@@ -1049,11 +1063,11 @@ func (s *Service) metajson() string {
 		}
 	}
 
-	// Category is metadata-only and kept INDEPENDENT of config.Dataconf (which the
+	// Category is metadata-only and kept INDEPENDENT of dataconf (which the
 	// query/production path reads): derive it here by reading which conf file each
 	// dataset is defined in. source1/source2 = primary data sources; the rest = xref.
 	primary := map[string]bool{}
-	confDir := filepath.Join(config.Appconf["rootDir"], "conf")
+	confDir := filepath.Join(appconf["rootDir"], "conf")
 	for _, fn := range []string{"source1.dataset.json", "source2.dataset.json"} {
 		if raw, err := ioutil.ReadFile(filepath.Join(confDir, fn)); err == nil {
 			var m map[string]map[string]string
@@ -1073,9 +1087,9 @@ func (s *Service) metajson() string {
 
 	// Parent/child + derived relationships (read-only from existing fields), so each
 	// primary is listed followed by its derived/child datasets, then xref last.
-	names := make([]string, 0, len(config.Dataconf))
-	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" && k != "my_data" { // my_data is a placeholder, not a source
+	names := make([]string, 0, len(dataconf))
+	for k := range dataconf {
+		if dataconf[k]["_alias"] == "" && k != "my_data" { // my_data is a placeholder, not a source
 			names = append(names, k)
 		}
 	}
@@ -1083,7 +1097,7 @@ func (s *Service) metajson() string {
 	childrenOf := map[string][]string{}
 	parentOf := map[string]string{}
 	for _, k := range names {
-		if cd := config.Dataconf[k]["childDatasets"]; cd != "" {
+		if cd := dataconf[k]["childDatasets"]; cd != "" {
 			for _, c := range strings.Split(cd, ",") {
 				c = strings.TrimSpace(c)
 				if c != "" && c != k && parentOf[c] == "" {
@@ -1092,7 +1106,7 @@ func (s *Service) metajson() string {
 				}
 			}
 		}
-		if p := config.Dataconf[k]["path"]; strings.HasPrefix(p, "derived:") {
+		if p := dataconf[k]["path"]; strings.HasPrefix(p, "derived:") {
 			if par := strings.TrimSpace(strings.TrimPrefix(p, "derived:")); par != "" && parentOf[k] == "" {
 				parentOf[k] = par
 				childrenOf[par] = append(childrenOf[par], k)
@@ -1107,8 +1121,8 @@ func (s *Service) metajson() string {
 		if parentOf[k] != "" {
 			continue
 		}
-		if ld := config.Dataconf[k]["linkdataset"]; ld != "" && ld != k {
-			if _, ok := config.Dataconf[ld]; ok {
+		if ld := dataconf[k]["linkdataset"]; ld != "" && ld != k {
+			if _, ok := dataconf[ld]; ok {
 				parentOf[k] = ld
 				childrenOf[ld] = append(childrenOf[ld], k)
 			}
@@ -1116,10 +1130,10 @@ func (s *Service) metajson() string {
 	}
 
 	emitOne := func(k string) {
-		b.WriteString(`"` + config.Dataconf[k]["id"] + `":{`)
+		b.WriteString(`"` + dataconf[k]["id"] + `":{`)
 
-		if len(config.Dataconf[k]["name"]) > 0 {
-			b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
+		if len(dataconf[k]["name"]) > 0 {
+			b.WriteString(`"name":"` + dataconf[k]["name"] + `",`)
 		} else {
 			b.WriteString(`"name":"` + k + `",`)
 		}
@@ -1128,18 +1142,18 @@ func (s *Service) metajson() string {
 
 		// group: source-family key so multi-dataset providers (chembl_*, pubchem*,
 		// uniprot family, …) collapse to one line; defaults to the dataset's own id.
-		grp := config.Dataconf[k]["group"]
+		grp := dataconf[k]["group"]
 		if grp == "" {
 			grp = k
 		}
 		b.WriteString(`"group":"` + grp + `",`)
 
-		if len(config.Dataconf[k]["linkdataset"]) > 0 {
-			b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
+		if len(dataconf[k]["linkdataset"]) > 0 {
+			b.WriteString(`"linkdataset":"` + dataconf[k]["linkdataset"] + `",`)
 		}
 
-		if _, ok := config.Dataconf[k]["attrs"]; ok {
-			b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
+		if _, ok := dataconf[k]["attrs"]; ok {
+			b.WriteString(`"attrs":"` + dataconf[k]["attrs"] + `",`)
 		}
 
 		// keyScheme: how a client addresses this dataset (chr:pos:ref:alt vs
@@ -1147,31 +1161,31 @@ func (s *Service) metajson() string {
 		// from intervalIndex. Lets API consumers resolve addressing without reading
 		// the source. threshold: the dataset's reporting cutoff (filtered datasets),
 		// so a missing score reads as "below threshold", not "not assessed".
-		if ks := config.Dataconf[k]["keyScheme"]; ks != "" {
+		if ks := dataconf[k]["keyScheme"]; ks != "" {
 			b.WriteString(`"keyScheme":` + jsonString(ks) + `,`)
-		} else if config.Dataconf[k]["intervalIndex"] == "yes" {
+		} else if dataconf[k]["intervalIndex"] == "yes" {
 			b.WriteString(`"keyScheme":"interval; query by variant position (chr:pos)",`)
 		}
-		if th := config.Dataconf[k]["threshold"]; th != "" {
+		if th := dataconf[k]["threshold"]; th != "" {
 			b.WriteString(`"threshold":` + jsonString(th) + `,`)
 		}
 		// scoreVariant: which release/variant of a score a dataset serves
 		// (e.g. SpliceAI raw vs masked) — changes what an absent score means.
-		if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
+		if sv := dataconf[k]["scoreVariant"]; sv != "" {
 			b.WriteString(`"scoreVariant":` + jsonString(sv) + `,`)
 		}
 		// data_db_version: the db_vN this running server actually loaded for the
 		// dataset's federation — true data provenance, unlike last_built (which is
 		// read from the shared, config-derived dataset_state.json and so is the same
 		// on two containers serving different db versions).
-		if dbv := s.datasetDBVersion(k); dbv != "" {
+		if dbv := versionOf(k); dbv != "" {
 			b.WriteString(`"data_db_version":"` + dbv + `",`)
 		}
 
 		// Lineage: derivedFrom (explicit), else childDatasets/derived: parent.
 		// Freshness inherits the parent only when the dataset has no own source
 		// (explicit derivedFrom or a "derived:" path); child datasets keep their own.
-		parent := config.Dataconf[k]["derivedFrom"]
+		parent := dataconf[k]["derivedFrom"]
 		if parent == "" {
 			parent = parentOf[k]
 		}
@@ -1199,7 +1213,7 @@ func (s *Service) metajson() string {
 				b.WriteString(`"status":"` + fr.Status + `",`)
 			}
 		}
-		if dv := config.Dataconf[k]["data_version"]; dv != "" {
+		if dv := dataconf[k]["data_version"]; dv != "" {
 			b.WriteString(`"data_version":` + strconv.Quote(dv) + `,`)
 		}
 		if ua, ok := updateAvail[fk]; ok {
@@ -1217,7 +1231,7 @@ func (s *Service) metajson() string {
 	// emit a dataset then its derived/children (dedup by id), depth-first.
 	var emit func(k string)
 	emit = func(k string) {
-		id := config.Dataconf[k]["id"]
+		id := dataconf[k]["id"]
 		if keymap[id] {
 			return
 		}
@@ -1253,13 +1267,13 @@ func (s *Service) metajson() string {
 	// mark builtin db if exist
 	s2 = s2 + `, "appparams":{`
 	// biobtree build version (stamped via ldflags; set in runWebCommand).
-	if v := config.Appconf["biobtreeVersion"]; v != "" {
+	if v := appconf["biobtreeVersion"]; v != "" {
 		s2 = s2 + `"biobtree_version":` + strconv.Quote(v) + `,`
 	}
-	if v := config.Appconf["biobtreeCommit"]; v != "" {
+	if v := appconf["biobtreeCommit"]; v != "" {
 		s2 = s2 + `"biobtree_commit":` + strconv.Quote(v) + `,`
 	}
-	if v := config.Appconf["biobtreeBuildDate"]; v != "" {
+	if v := appconf["biobtreeBuildDate"]; v != "" {
 		s2 = s2 + `"biobtree_build_date":` + strconv.Quote(v) + `,`
 	}
 	if freshnessCheckedAt != "" {
@@ -1267,7 +1281,7 @@ func (s *Service) metajson() string {
 	}
 
 	// Check main federation's index dir for special meta files
-	mainIndexDir := filepath.Join(config.Appconf["outDir"], "main", "index")
+	mainIndexDir := filepath.Join(appconf["outDir"], "main", "index")
 	files, err := ioutil.ReadDir(mainIndexDir)
 	if err != nil {
 		// Non-fatal: metajson is rebuilt periodically in a background goroutine;
@@ -1311,6 +1325,12 @@ type searchPageInfo struct {
 	linkIndex            int
 	linkActive           bool
 	linkIndexProcessed   bool
+}
+
+// metajson is the running server's view: same builder, service config + loaded
+// federation versions.
+func (s *Service) metajson() string {
+	return MetaJSONString(config.Dataconf, config.Appconf, s.datasetDBVersion)
 }
 
 func (s *Service) searchPageInfo(page string) (*searchPageInfo, error) {

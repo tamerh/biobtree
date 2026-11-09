@@ -847,6 +847,17 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 		log.Printf("Warning: Could not load state file to save DB stats: %v", err)
 	}
 
+	// Immutable release metadata snapshot (out/releases/<id>.json + current.json).
+	// A failure here must not fail an otherwise successful build.
+	if d.dbVersion > 0 {
+		if err := update.WriteReleaseSnapshot(outDir, d.federation,
+			fmt.Sprintf("db_v%d", d.dbVersion), config.BinaryVersion()); err != nil {
+			log.Printf("Warning: release snapshot not written: %v", err)
+		} else {
+			log.Printf("Release snapshot written for %s db_v%d", d.federation, d.dbVersion)
+		}
+	}
+
 	return d.totalKeyWrite, d.uidIndex, d.totalLinkKey
 
 }

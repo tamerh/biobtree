@@ -75,6 +75,10 @@ class ReifiedRule:
                          # member). Used when both endpoints are multi-gene complexes
                          # whose per-side member symbols are spelled out (cellphonedb).
     note: str | None = None
+    # Per-rule override of the generic 5000-edges-per-entry cap. Needed by
+    # datasets whose entries are legitimately huge (ChIP-Atlas: one TF window can
+    # bind tens of thousands of genes); without it those entries are dropped.
+    max_edges: int | None = None
 
 
 class PredicateMap:
@@ -141,6 +145,7 @@ class PredicateMap:
                 qualifier_fields=cfg.get("qualifier_fields"),
                 cross=bool(cfg.get("cross", False)),
                 note=cfg.get("note"),
+                max_edges=cfg.get("max_edges"),
             )
         return cls(direct, reified)
 

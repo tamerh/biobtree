@@ -164,7 +164,7 @@ def build_reified_edges(
                 stats.lines += len(group)
                 for row in _emit_group(
                     group, rule, registry, categories, canonical,
-                    primary, max_edges_per_group, stats, kl, at,
+                    primary, rule.max_edges or max_edges_per_group, stats, kl, at,
                     resolve_map, symbol_map,
                 ):
                     out.write(row)
@@ -323,8 +323,10 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
         # When `subject` is the reified dataset itself, the subject is the group
         # KEY (e.g. miRDB: the miRNA is the entry id, only the targets are object
         # lines), not an object-role line — render the key with the subject prefix.
-        if rule.subject == rule.dataset:
-            # The subject is the group KEY (entry id). For most such datasets the
+        if rule.subject_field or rule.subject == rule.dataset:
+            # The subject is the group KEY (entry id), or the key comes from the
+            # property JSON (subject_field) and names an entity in another
+            # dataset (e.g. chip_atlas_tfbs: entry=TARGET, property tf=TF). For most such datasets the
             # entry id is itself meaningful (miRDB miRNA, CIViC variant). When it
             # is only a build-local SURROGATE (fantom5_enhancer), the stable id
             # lives in the property JSON: `subject_field` names that key, and a

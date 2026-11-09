@@ -47,6 +47,11 @@ ASPECT_PREDICATE = {
 # deferred to avoid gene-namespace duplication and size.
 DEFAULT_ANNOTATION_SOURCES = ("uniprot", "ensembl")
 
+# Sources whose index direction is GO -> gene rather than gene -> GO. GOA is the
+# native annotation set: one GO entry with a human gene set, so the KG edge must
+# be flipped to gene -> GO like the uniprot/ensembl annotation sources.
+REVERSED_ANNOTATION_SOURCES = frozenset({"goa"})
+
 
 @dataclass
 class GoStats:
@@ -133,22 +138,30 @@ def build_go(
         out.write(kgx.EDGE_HEADER + "\n")
         for src in annotation_sources:
             primary = f"infores:{src}"
+            reversed_src = src in REVERSED_ANNOTATION_SOURCES
             for path in sorted(glob.glob(str(index_dir / f"{src}_sorted.*.index.gz"))):
                 for raw in iter_index_file(path, counter):
                     if raw.is_property:
                         continue
-                    if registry.name_for_id(raw.object_dataset_id) != "go":
-                        continue
-                    term = terms.get(raw.object)
+                    if reversed_src:
+                        # GO -> gene rows (goa): keep the gene -> GO direction.
+                        if registry.name_for_id(raw.object_dataset_id) != "hgnc":
+                            continue
+                        go_id, gene_id, gene_ds = raw.subject, raw.object, "hgnc"
+                    else:
+                        if registry.name_for_id(raw.object_dataset_id) != "go":
+                            continue
+                        go_id, gene_id, gene_ds = raw.object, raw.subject, src
+                    term = terms.get(go_id)
                     if term is None:
                         stats.edges_missing_aspect += 1
                         continue
                     aspect, _ = term
-                    subj = canonical(src, raw.subject)
+                    subj = canonical(gene_ds, gene_id)
                     if subj is None:
                         continue
                     predicate = ASPECT_PREDICATE[aspect]
-                    obj = to_curie(GO_PREFIX, raw.object)
+                    obj = to_curie(GO_PREFIX, go_id)
                     ev = kgx.to_evidence_curie(raw.evidence)
                     out.write(
                         kgx.format_edge(

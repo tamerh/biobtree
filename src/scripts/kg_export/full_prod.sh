@@ -15,24 +15,26 @@
 set -e
 PY=/data/miniconda3/envs/biobtree/bin/python
 export PYTHONPATH="src/scripts:${PYTHONPATH:-}"
-IDX=/data2/out_prod_v5/main/index
+# KGX_INDEX_DIR may point at a staging dir of symlinks when a requested dataset
+# lives in another federation (gnomad_sv -> gnomad/index); main index otherwise.
+IDX=${KGX_INDEX_DIR:-/data2/out_prod_v5/main/index}
 DBSNP_GZ=${DBSNP_GZ:-/data2/out_prod_v5/dbsnp/index/dbsnp_sorted.*.index.gz}
 WITH_DBSNP=${WITH_DBSNP:-1}
 DBSNP_WORKERS=${DBSNP_WORKERS:-12}
 # Variant-effect PREDICTION layer (spliceai + alphamissense). OPT-IN: variant-scale
 # (~tens of millions of predicted variant->gene edges), for the full-stats run only.
 WITH_PREDICTIONS=${WITH_PREDICTIONS:-0}
-O=out/kg/full
+O=${KGX_OUT:-out/kg/full}
 mkdir -p "$O"
 
 # Core node datasets (with names); stubs cover compounds/variants/ncRNA/etc.
 # Ontologies (disease/phenotype incl. cross-species uPheno family) materialized
 # so their subclass_of/close_match edges (step 4) don't dangle.
-NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda,jaspar,mirdb,xenbase,faers_reaction,fantom5_enhancer,pharmgkb_pathway,literature_mappings,chembl_document,patent,chembl_cell_line,exon,cds,ufeature,drugcentral
+NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda,jaspar,mirdb,xenbase,faers_reaction,fantom5_enhancer,pharmgkb_pathway,literature_mappings,chembl_document,patent,chembl_cell_line,exon,cds,ufeature,drugcentral,wikipathways,gnomad_sv,dbvar
 # Direct edges (incl. big high-value forwards: clinvar, rnacentral)
-EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral,jaspar,chembl_document,chembl_cell_line,entrez,ufeature,drugcentral
+EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral,jaspar,chembl_document,chembl_cell_line,entrez,ufeature,drugcentral,wikipathways,gnomad_sv,dbvar
 # Reified (incl. string_interaction PPI + similarity stars + bioactivity)
-REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas,alliance_disease,clinical_trials,cellxgene_celltype,ctd_gene_interaction,civic_variant,civic_evidence,civic_assertion,mirdb,generif,alliance_phenotype,faers,panelapp_gene,ctd_disease_association,fantom5_enhancer,pharmgkb_pathway,pharmgkb_guideline,patent
+REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas,alliance_disease,clinical_trials,cellxgene_celltype,ctd_gene_interaction,civic_variant,civic_evidence,civic_assertion,mirdb,generif,alliance_phenotype,faers,panelapp_gene,ctd_disease_association,fantom5_enhancer,pharmgkb_pathway,pharmgkb_guideline,patent,chip_atlas_tfbs
 
 echo "### 1/7 nodes (peak-mem) $(date +%T)"
 /usr/bin/time -v $PY -m kg_export nodes --index-dir $IDX --datasets $NODE_DS \
@@ -42,7 +44,7 @@ grep -E "Maximum resident|Elapsed \(wall" $O/nodes.time.txt || true
 
 echo "### 2/7 GO $(date +%T)"
 $PY -m kg_export go --index-dir $IDX --id-map $O/id_map.tsv.gz \
-  --nodes-out $O/go_nodes.tsv.gz --edges-out $O/go_edges.tsv.gz --stats $O/go.stats.json --sources uniprot,ensembl
+  --nodes-out $O/go_nodes.tsv.gz --edges-out $O/go_edges.tsv.gz --stats $O/go.stats.json --sources uniprot,ensembl,goa
 
 echo "### 3/7 RefSeq (transcript/protein/ncRNA nodes + edges) $(date +%T)"
 $PY -m kg_export refseq --index-dir $IDX --id-map $O/id_map.tsv.gz \

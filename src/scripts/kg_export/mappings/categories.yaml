@@ -40,7 +40,7 @@ canonical_priority:
   # HPO (human) and MP (mouse) are NOT the same entity — relate via uPheno, do
   # not merge; kept apart (no identity_pairs across them).
   "biolink:PhenotypicFeature": [hpo]
-  "biolink:Pathway": [reactome, msigdb]
+  "biolink:Pathway": [reactome, msigdb, wikipathways]
 
 datasets:
   # --- Genes -----------------------------------------------------------------
@@ -127,6 +127,8 @@ datasets:
   # --- Sequence variants -----------------------------------------------------
   clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}
   dbsnp:       {category: "biolink:SequenceVariant", prefix: "DBSNP", note: "dbsnp federation"}
+  gnomad_sv:   {category: "biolink:SequenceVariant", prefix: "GNOMAD_SV", note: "gnomAD SV sites (separate federation); NOT merged with clinvar/dbsnp"}
+  dbvar:       {category: "biolink:SequenceVariant", prefix: "DBVAR", note: "dbVar structural variants (NSSV ids)"}
   civic_variant: {category: "biolink:SequenceVariant", prefix: "civic.vid", note: "CIViC curated cancer variant; bioregistry prefix civic.vid; NOT merged with clinvar/dbsnp (xref != identity)"}
   # Predicted variant-effect layer: spliceai + alphamissense subjects are variant
   # COORDINATES (chr:pos:ref:alt), not rs-ids. Both share ONE locally-coined prefix
@@ -137,6 +139,7 @@ datasets:
 
   # --- Pathways / gene sets --------------------------------------------------
   reactome:    {category: "biolink:Pathway", prefix: "REACT"}
+  wikipathways: {category: "biolink:Pathway", prefix: "WIKIPATHWAYS", note: "WikiPathways WPID (CC0); genes via hgnc + entrez"}
   msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets/signatures; Pathway is a mild overclaim but biolink has no GeneSet class"}
   pharmgkb_pathway: {category: "biolink:Pathway", prefix: "PHARMGKB.PATHWAYS", note: "PharmGKB curated pgx pathways (biolink prefix map)"}
 

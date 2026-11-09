@@ -27,6 +27,15 @@ direct:
   "clinvar>entrez":    {skip: "gene dup of clinvar>hgnc (canonicalized)"}
   "clinvar>ensembl":   {skip: "gene dup of clinvar>hgnc (canonicalized)"}
   "dbsnp>entrez":      {predicate: "biolink:is_sequence_variant_of", note: "very large (~769M); scope out of small runs"}
+  "gnomad_sv>hgnc":    {predicate: "biolink:is_sequence_variant_of", note: "gnomAD SV site -> overlapping gene"}
+  "dbvar>mondo":       {predicate: "biolink:associated_with"}
+  "dbvar>orphanet":    {predicate: "biolink:associated_with"}
+  "dbvar>mim":         {predicate: "biolink:associated_with"}
+  "dbvar>hpo":         {predicate: "biolink:associated_with"}
+  "dbvar>mesh":        {predicate: "biolink:associated_with"}
+  "dbvar>clinvar":     {skip: "xref to the clinvar variation id, not a distinct relationship"}
+  "dbvar>medgen":      {skip: "medgen not modeled as a node yet"}
+  "dbvar>pubmed":      {skip: "structural-variant literature citation (not modeled as an edge)"}
 
   # --- Sequence variant -> disease / phenotype ------------------------------
   "clinvar>mondo":     {predicate: "biolink:associated_with"}
@@ -77,6 +86,8 @@ direct:
 
   # --- Gene / protein / transcript -> pathway -------------------------------
   "reactome>ensembl":  {predicate: "biolink:participates_in", flip: true, note: "gene participates_in pathway; larger than ensembl>reactome"}
+  "wikipathways>hgnc": {predicate: "biolink:participates_in", flip: true, note: "gene participates_in WikiPathways pathway"}
+  "wikipathways>entrez": {skip: "gene dup of wikipathways>hgnc (canonicalized)"}
   "ensembl>reactome":  {skip: "redundant with reactome>ensembl"}
   "reactome>uniprot":  {predicate: "biolink:participates_in", flip: true}
   "uniprot>reactome":  {skip: "redundant with reactome>uniprot"}
@@ -222,6 +233,10 @@ reified:
   # collectri entry property names tf_gene/target_gene as SYMBOLS; resolve:symbol
   # maps them to HGNC ids so the edge is correctly directed TF->target.
   collectri: {kind: pairwise, partner: hgnc, subject_field: tf_gene, object_field: target_gene, resolve: symbol, predicate: "biolink:regulates", note: "CollecTRI signed TF->gene"}
+  # ChIP-Atlas: entry key is CHIPATLAS:<genome>:<tf>:<window>, property tf names the
+  # TF; the entry's hgnc lines are the TARGET genes bound in that TSS window.
+  # subject_field pulls the TF symbol from the property so the edge is TF->target.
+  chip_atlas_tfbs: {kind: bipartite, subject: hgnc, subject_field: tf, object: hgnc, predicate: "biolink:regulates", max_edges: 50000, note: "ChIP-Atlas TF binding -> target gene (TSS window); large TFs need the raised cap"}
   # SIGNOR signed causal regulation; protein-protein subset (entity ids are bare
   # uniprot accessions; require keeps database_a/b == UNIPROT). entity_a -> entity_b.
   signor:    {kind: pairwise, partner: uniprot, subject_field: id_a, object_field: id_b, predicate: "biolink:regulates", require: {database_a: UNIPROT, database_b: UNIPROT}, note: "SIGNOR directed protein regulation"}

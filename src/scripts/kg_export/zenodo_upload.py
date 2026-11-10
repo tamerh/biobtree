@@ -52,6 +52,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sandbox", action="store_true", help="use sandbox.zenodo.org")
     ap.add_argument("--dump", default="out/kg/full/sub/dump", help="subgraph dump dir")
+    ap.add_argument("--new-version-of", default="", metavar="RECORD_ID",
+                    help="create a NEW VERSION of an existing published record "
+                         "(concept DOI stays the same) instead of a fresh deposition")
     ap.add_argument("--creator", default=os.environ.get("ZENODO_CREATOR", "Gür, Tamer"))
     ap.add_argument("--affiliation", default=os.environ.get("ZENODO_AFFILIATION", ""))
     ap.add_argument("--version", default=os.environ.get("ZENODO_VERSION", "v1"))
@@ -75,18 +78,43 @@ def main() -> int:
     nodes_h = f"{manifest.get('node_count', 0)/1e6:.0f}M"
     edges_h = f"{manifest.get('edge_count', 0)/1e6:.0f}M"
 
-    # 1. create draft
-    print(f"Creating draft on {site} ...")
-    r = s.post(f"{base}/deposit/depositions", json={})
-    if r.status_code >= 400:
-        print(f"ERROR: draft creation failed: HTTP {r.status_code} {r.reason}", file=sys.stderr)
-        print(f"  response: {r.text[:400]}", file=sys.stderr)
-        print("  check the token scopes (deposit:write, deposit:actions) and that it "
-              "matches the endpoint (--sandbox token for sandbox.zenodo.org).", file=sys.stderr)
-        return 2
-    dep = r.json()
-    dep_id, bucket = dep["id"], dep["links"]["bucket"]
-    print(f"  draft id={dep_id}")
+    # 1. create the draft: either a fresh deposition, or a new version of an
+    #    existing published record (same concept DOI, version bumped).
+    if args.new_version_of:
+        print(f"Creating new version of record {args.new_version_of} on {site} ...")
+        r = s.post(f"{base}/deposit/depositions/{args.new_version_of}/actions/newversion")
+        if r.status_code >= 400:
+            print(f"ERROR: new-version request failed: HTTP {r.status_code} {r.reason}", file=sys.stderr)
+            print(f"  response: {r.text[:400]}", file=sys.stderr)
+            return 2
+        latest = (r.json().get("links") or {}).get("latest_draft")
+        if not latest:
+            print("ERROR: no latest_draft link in the new-version response", file=sys.stderr)
+            return 2
+        dep = s.get(latest).json()
+        dep_id, bucket = dep["id"], dep["links"]["bucket"]
+        print(f"  version draft id={dep_id}")
+        # The new-version draft inherits the previous files; remove them so the
+        # bundle is exactly the files below (Zenodo rejects duplicate names).
+        existing = s.get(f"{base}/deposit/depositions/{dep_id}/files").json()
+        if isinstance(existing, list):
+            for f in existing:
+                d = s.delete(f"{base}/deposit/depositions/{dep_id}/files/{f['id']}")
+                if d.status_code >= 400:
+                    print(f"  warning: could not remove {f.get('filename')}: HTTP {d.status_code}", file=sys.stderr)
+            print(f"  removed {len(existing)} inherited file(s)")
+    else:
+        print(f"Creating draft on {site} ...")
+        r = s.post(f"{base}/deposit/depositions", json={})
+        if r.status_code >= 400:
+            print(f"ERROR: draft creation failed: HTTP {r.status_code} {r.reason}", file=sys.stderr)
+            print(f"  response: {r.text[:400]}", file=sys.stderr)
+            print("  check the token scopes (deposit:write, deposit:actions) and that it "
+                  "matches the endpoint (--sandbox token for sandbox.zenodo.org).", file=sys.stderr)
+            return 2
+        dep = r.json()
+        dep_id, bucket = dep["id"], dep["links"]["bucket"]
+        print(f"  draft id={dep_id}")
 
     # generated README accompanying the bundle
     readme = (dump / "README.md")

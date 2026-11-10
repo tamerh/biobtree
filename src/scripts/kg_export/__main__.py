@@ -475,7 +475,8 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
                   "dangling edges; use --stub-nodes or --validate-mode full.", file=sys.stderr)
     else:
         report = kgx.validate(nodes_tsv, edges_tsv)
-    mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
+    mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report,
+                        license=args.license)
     mani["edge_dedup"] = edge_dedup
     if stub_info is not None:
         mani["stub_nodes"] = stub_info
@@ -658,6 +659,9 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--edges", required=True, help="comma list of edge TSVs")
     a.add_argument("--out-dir", required=True, help="output dir for the KGX dump")
     a.add_argument("--data-version", default=None, help="biobtree data release tag")
+    a.add_argument("--license", default="https://www.gnu.org/licenses/agpl-3.0",
+                   help="license URL recorded in manifest.json (the published KGX bundle "
+                        "is CC BY-NC-SA 4.0; the export code itself stays AGPL)")
     a.add_argument("--categories", default=str(_MAP / "categories.yaml"))
     a.add_argument("--stub-nodes", action="store_true",
                    help="emit minimal nodes for edge endpoints lacking one")

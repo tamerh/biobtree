@@ -131,6 +131,7 @@ $PY -m kg_export assemble \
   --nodes $O/sub/nodes.tsv.gz,$SHOW_N --edges $O/sub/edges.tsv.gz,$SHOW_E \
   --node-attributes $ATTRS,$SHOW_A \
   --out-dir $O/sub/dump --data-version out_prod_v5_subgraph --stub-nodes --gzip \
+  --license https://creativecommons.org/licenses/by-nc-sa/4.0/ \
   --validate-mode streaming || echo "  [stage 8c assemble exit $? -- gate; outputs written]"
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

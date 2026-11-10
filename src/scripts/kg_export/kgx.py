@@ -469,8 +469,11 @@ _BARE_ID_RULES = (
     (re.compile(r"^FBpp\d+$", re.I), "biolink:Protein"),
     (re.compile(r"^FBtr\d+$", re.I), "biolink:Transcript"),
     (re.compile(r"^WBGene\d+$", re.I), "biolink:Gene"),
-    # C. elegans ORF names (T23D8.5.1), which arrive bare from worm sources
-    (re.compile(r"^[A-Z]\d{1,2}[A-Z]\d{1,2}[A-Z]?\.\d+(\.\d+)?$"), "biolink:Gene"),
+    # C. elegans ORF names (T23D8.5.1, K03E5.2C.1), which arrive bare from
+    # worm sources; the optional letters are isoform/transcript suffixes.
+    (re.compile(r"^[A-Z]\d{1,2}[A-Z]\d{1,2}[A-Z]?\.\d+[A-Z]?(\.\d+)?$"), "biolink:Gene"),
+    # TriTrypDB gene ids for T. brucei 927 (TB927.1.2430).
+    (re.compile(r"^TB\d+\.\d"), "biolink:Gene"),
 )
 
 

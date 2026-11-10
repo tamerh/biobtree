@@ -541,10 +541,11 @@ func loadDatasetConf(confDir string) (map[string]string, map[string]string, map[
 				fed = "main"
 			}
 			feds[name] = fed
-			// Only datasets with an id are real, index-backed sources. Virtual
-			// entries (baochild, clparent, ...) have no id and no index of their
-			// own; they were inflating the "no state" row count.
-			if isSource && hasID && id != "" {
+			// A linkdataset entry (baochild, clparent, ortholog, ...) is a
+			// virtual view computed from another dataset's hierarchy: it has an
+			// id but no index files of its own, so it is never a row.
+			linkds, _ := props["linkdataset"].(string)
+			if isSource && hasID && id != "" && linkds == "" {
 				sources[name] = true
 			}
 		}

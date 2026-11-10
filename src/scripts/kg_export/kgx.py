@@ -452,7 +452,26 @@ def edges_to_jsonl(edges_tsv: str | Path, out_path: str | Path) -> int:
 # prefix -> category for entities referenced by edges but not built as nodes
 # (taxid-scoped genes/proteins from broader sources). Known aliases for prefixes
 # whose dataset prefix differs from how xref values arrive.
-_STUB_ALIAS = {"SLM": "biolink:SmallMolecule"}
+_STUB_ALIAS = {
+    "SLM": "biolink:SmallMolecule",
+    # taxid-scoped sources emit these as bare accession prefixes that no dataset
+    # in categories.yaml owns, so prefix lookup alone leaves them untyped.
+    "NCBITAXON": "biolink:OrganismTaxon",
+}
+
+# Bare (colon-less) accessions: model-organism and Ensembl protein/transcript
+# ids arrive without a CURIE prefix, so they must be typed by pattern.
+_BARE_ID_RULES = (
+    (re.compile(r"^ENS[A-Z]*G\d{6,}$"), "biolink:Gene"),
+    (re.compile(r"^ENS[A-Z]*T\d{6,}$"), "biolink:Transcript"),
+    (re.compile(r"^ENS[A-Z]*P\d{6,}$"), "biolink:Protein"),
+    (re.compile(r"^FBgn\d+$", re.I), "biolink:Gene"),
+    (re.compile(r"^FBpp\d+$", re.I), "biolink:Protein"),
+    (re.compile(r"^FBtr\d+$", re.I), "biolink:Transcript"),
+    (re.compile(r"^WBGene\d+$", re.I), "biolink:Gene"),
+    # C. elegans ORF names (T23D8.5.1), which arrive bare from worm sources
+    (re.compile(r"^[A-Z]\d{1,2}[A-Z]\d{1,2}[A-Z]?\.\d+(\.\d+)?$"), "biolink:Gene"),
+)
 
 
 def _prefix_category(categories) -> dict[str, str]:
@@ -471,11 +490,18 @@ def _prefix_category(categories) -> dict[str, str]:
 
 
 def _stub_category(curie: str, pmap: dict[str, str]) -> str | None:
+    for pattern, category in _BARE_ID_RULES:
+        if pattern.match(curie):
+            return category
     prefix, _, local = curie.partition(":")
     if prefix in pmap:
         return pmap[prefix]
     if prefix == "ENSEMBL":  # ambiguous: disambiguate by id pattern
-        return "biolink:Transcript" if re.search(r"T\d", local) else "biolink:Gene"
+        if re.search(r"T\d", local):
+            return "biolink:Transcript"
+        if re.search(r"P\d", local):
+            return "biolink:Protein"
+        return "biolink:Gene"
     return None
 
 

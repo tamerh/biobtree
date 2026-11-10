@@ -65,8 +65,10 @@ def main() -> int:
         return 2
     base = "https://sandbox.zenodo.org/api" if args.sandbox else "https://zenodo.org/api"
     site = "https://sandbox.zenodo.org" if args.sandbox else "https://zenodo.org"
+    # Bearer header, NOT ?access_token=: requests puts the full URL in HTTPError
+    # messages, so a query-param token ends up printed in logs on any 4xx/5xx.
     s = requests.Session()
-    s.params = {"access_token": token}
+    s.headers.update({"Authorization": f"Bearer {token}"})
     dump = Path(args.dump)
 
     manifest = json.loads((dump / "manifest.json").read_text())
@@ -76,7 +78,12 @@ def main() -> int:
     # 1. create draft
     print(f"Creating draft on {site} ...")
     r = s.post(f"{base}/deposit/depositions", json={})
-    r.raise_for_status()
+    if r.status_code >= 400:
+        print(f"ERROR: draft creation failed: HTTP {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"  response: {r.text[:400]}", file=sys.stderr)
+        print("  check the token scopes (deposit:write, deposit:actions) and that it "
+              "matches the endpoint (--sandbox token for sandbox.zenodo.org).", file=sys.stderr)
+        return 2
     dep = r.json()
     dep_id, bucket = dep["id"], dep["links"]["bucket"]
     print(f"  draft id={dep_id}")
@@ -120,7 +127,10 @@ def main() -> int:
              if args.preprint_doi else []),
     }}
     r = s.put(f"{base}/deposit/depositions/{dep_id}", json=meta)
-    r.raise_for_status()
+    if r.status_code >= 400:
+        print(f"ERROR: metadata update failed: HTTP {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"  response: {r.text[:400]}", file=sys.stderr)
+        return 2
 
     print("\nDRAFT READY (not published). Review + publish here:")
     print(f"  {site}/uploads/{dep_id}   (or {site}/deposit/{dep_id})")

@@ -16,7 +16,7 @@ BioBTree exports a biolink-typed [KGX](https://github.com/biolink/kgx) knowledge
 
 ## Benchmark
 
-LLMs answering GeneTuring, LAB-Bench and variant questions with BioBTree, with web search and without tools: results in **[docs/benchmark](docs/benchmark/index.md)**; questions, code and per-question answers in [tamerh/biobtree-bench](https://github.com/tamerh/biobtree-bench).
+LLMs answering GeneTuring, LAB-Bench and variant questions with BioBTree, with web search and without tools: results in **[docs/benchmark](docs/benchmark/index.md)**.
 
 ## Publication
 

@@ -18,6 +18,9 @@
 - Knowledge Graph Export
   - [Overview](kg_export/index.md)
 
+- Benchmark
+  - [Results](benchmark/index.md)
+
 - Development
   - [Overview](development/index.md)
   - [Adding Datasets](development/adding-datasets.md)
